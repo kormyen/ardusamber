@@ -1,16 +1,17 @@
 # Military vs Desamber
 
-This is a simple example Arduino sketch that displays 24-hour time (Military time) and Desamber time.
+This Arduino sketch displays 24-hour time (Military time) and Desamber time.
+
+It includes buttons to set the time. One button adds an hour, the other adds a minute.
 
 Desamber is a time format created by [Devine Lu Linvega](https://github.com/neauoire). More information about Desamber [here](https://wiki.xxiivv.com/#clock).
 
-This was built with an `Arduino Uno` and an `Open Smart I2C / IIC LCD 1602 Display Module`. This example does not use a `RTC (real-time clock)`, the start time is instead set via code.
-
-<img src='https://raw.githubusercontent.com/kormyen/ArduinoDesamber/master/000-MilitaryVsDesamber/PREVIEW.jpg' width="600"/>
+This was built with an `Arduino Uno`, an `Open Smart I2C / IIC LCD 1602 Display Module` and two `Momentary buttons`. This sketch does not use a `RTC (real-time clock)`, the time is instead set via the momentary buttons.
 
 ## Guide
 
-To set the start time change the 'setTime' line in setup(): [`setTime(hr,min,sec,day,month,yr);`](https://github.com/PaulStoffregen/Time)
+- Press buttons until time is correct
+- Enjoy
 
 ### Wiring for LCD
 
@@ -21,4 +22,4 @@ To set the start time change the 'setTime' line in setup(): [`setTime(hr,min,sec
 
 ## Dependencies
 
-The code makes use of the [LiquidCrystal_I2C](https://github.com/marcoschwartz/LiquidCrystal_I2C) and [TimeLib](https://github.com/PaulStoffregen/Time) libraries.
+The code makes use of the [LiquidCrystal_I2C](https://github.com/marcoschwartz/LiquidCrystal_I2C) to control the LCD, [TimeLib](https://github.com/PaulStoffregen/Time) for timekeeping functionality and [RBD_Button](https://github.com/alextaujenis/RBD_Button) for simplified button handling.
