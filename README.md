@@ -1,4 +1,4 @@
-# Arduino Desamber
+# Ardusamber
 
 This is repo is for `Arduino` experiements with [Devine Lu Linvega](https://github.com/neauoire)'s time format [Desamber](https://wiki.xxiivv.com/#clock).
 
