@@ -17,7 +17,7 @@ Desamber is a time format created by Devine Lu Linvega. More information about D
 #define ROW_OFFSET_ONE 5 // Starting offset for text on second row of LCD
 
 // LCD
-LiquidCrystal_I2C lcd(0x20,16,2);  // set the LCD address to 0x20 for a 16 chars and 2 line display
+LiquidCrystal_I2C lcd(0x20,16,2);  // Set the LCD address to 0x20 for a 16 chars and 2 line display
 
 // BUTTONS
 RBD::Button buttonHour(BUTTON_PIN_HOUR); // Button for time adjust add hour
@@ -71,7 +71,8 @@ void loop()
   // Print Desamber time to LCD
   writeToScreen(getDesamberTime(), ROW_OFFSET_ONE, 1);
 
-  delay(86); // '...the shortest pulse equals to 8.64 milliseconds...'
+  // '...the shortest pulse equals to 8.64 milliseconds...'
+  delay(86);
 }
 
 /// On rollover from midnight, Arduino millis are not reset we need to account for this - the Desamber calc uses millis.
@@ -80,7 +81,7 @@ void calcMilliOffset()
 {
   if (_hour == 0 && _hourPrev == 23 && _minute == 0 && _minutePrev == 59)
   {
-    // The time just went from 11pm to 12am.
+    // The time just went from 11:59pm to 12:00am.
     _milliOffset = millis();
   }
   _hourPrev = _hour;
@@ -116,12 +117,13 @@ String getDesamberTime()
   return insertString(_dTimeString, ":", 3);
 }
 
-String addMissingDigits(String value, int totalDigits)
+String addMissingDigits(String value, int digitsRequired)
 {
-  int missingDigits = totalDigits - value.length();
+  int missingDigits = digitsRequired - value.length();
   String result = "";
   
-  for (int i = 0; i < missingDigits; i++){
+  for (int i = 0; i < missingDigits; i++)
+  {
     result += "0";
   }
   
@@ -129,11 +131,11 @@ String addMissingDigits(String value, int totalDigits)
   return result;
 }
 
-String insertString(String value, String addition, int indexPos)
+String insertString(String text, String addition, int indexPos)
 {
-  String result = value.substring(0, indexPos);
+  String result = text.substring(0, indexPos);
   result += addition;
-  result += value.substring(indexPos, value.length());;
+  result += text.substring(indexPos, text.length());
   return result;
 }
 
