@@ -4,6 +4,8 @@ It includes buttons to set the time. One button adds an hour, the other adds a m
 Desamber is a time format created by Devine Lu Linvega. More information about Desamber here: https://wiki.xxiivv.com/#clock
 */
 
+//#define DEBUG 1
+
 #include <LiquidCrystal_I2C.h>
 #include <TimeLib.h>
 #include <RBD_Button.h>
@@ -28,7 +30,6 @@ unsigned long _hour = 0;
 unsigned long _minute = 0;
 unsigned long _second = 0;
 unsigned long _milli = 0;
-unsigned long _millisPrev = 0;
 
 void setup()
 {
@@ -37,6 +38,10 @@ void setup()
   lcd.backlight();
   lcd.home();
   lcd.clear();
+
+  #ifdef DEBUG
+    Serial.begin(9600);
+  #endif
 }
 
 void loop()
@@ -45,7 +50,10 @@ void loop()
   _hour = (unsigned long) hour();
   _minute = (unsigned long) minute();
   _second = (unsigned long) second();
-  calcMilli();
+
+  // This keeps our _milli value under 1000 for dTime calculations.
+  String milliString = String(millis());
+  _milli = String(millis()).substring(milliString.length()-3, milliString.length()).toInt();
 
   // BUTTONS
   if(buttonHour.isPressed()) 
@@ -67,20 +75,6 @@ void loop()
   delay(86);
 }
 
-// We expect _milli to be under 1000 for dTime calculations. This method does that.
-void calcMilli()
-{
-  unsigned long milliCurrent = millis(); // Get snapshot of time
-  
-  // How much time has passed, accounting for rollover with subtraction!
-  // Source: https://www.baldengineer.com/arduino-how-do-you-reset-millis.html
-  if ((unsigned long)(milliCurrent - _millisPrev) >= 1000)
-  {
-    _millisPrev = milliCurrent; // Use the snapshot to set track time until next event
-  }
-  _milli = milliCurrent - _millisPrev;
-}
-
 void writeToScreen(String value, int posX, int posY)
 {
   lcd.setCursor(posX, posY);
@@ -100,11 +94,31 @@ String getMilitaryTime()
 String getDesamberTime()
 {
   // Calculate Desamber time
-  unsigned long _dTimeMid = (_hour * 3600000) + (_minute * 60000) + (_second * 1000) + _milli;
-  unsigned long _dTime = _dTimeMid / 86.4;
+  unsigned long _dTime = ((_hour * 3600000) + (_minute * 60000) + (_second * 1000) + _milli) / 86.4;
 
   // Format to string with filler zero characters up to six total characters
   String _dTimeString = addMissingDigits(String(_dTime), 6);
+
+  #ifdef DEBUG
+    Serial.print(addMissingDigits(String(_hour), 2));
+    Serial.print(":");
+    Serial.print(addMissingDigits(String(_minute), 2));
+    Serial.print(":");
+    Serial.print(addMissingDigits(String(_second), 2));
+    Serial.print(":");
+    Serial.print(addMissingDigits(String(_milli), 3));
+    
+    Serial.print("      _dTimeString = ");
+    Serial.print(_dTimeString);
+  
+    //Serial.print("      _dTimeMid = ");
+    //Serial.print(_dTimeMid);
+  
+    Serial.print("      millis() = ");
+    Serial.print(millis());
+   
+    Serial.println();
+  #endif 
   
   // Add ':' seperator between beat and pulse 
   return insertString(_dTimeString, ":", 3);
