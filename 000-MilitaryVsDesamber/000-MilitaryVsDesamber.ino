@@ -8,6 +8,7 @@
 #include "MilitaryTime.h"
 #include "RBD_Button.h"
 #include "LiquidCrystal_I2C.h"
+#include "TimeLib.h"
 
 Ardusamber _dTime = Ardusamber();
 MilitaryTime _mTime = MilitaryTime();
@@ -27,18 +28,13 @@ void setup()
 
 void loop()
 {
-  _dTime.loop();
-  _mTime.loop();
-  
   if(buttonHour.isPressed()) 
   {
-    _dTime.addSeconds(3600);
-    _mTime.addSeconds(3600);
+    adjustTime(3600);
   }
   if(buttonMinute.isPressed()) 
   {
-    _dTime.addSeconds(60);
-    _mTime.addSeconds(60);
+    adjustTime(60);
   }
 
   writeToScreen(_dTime.getFormattedTime(), 5, 1);

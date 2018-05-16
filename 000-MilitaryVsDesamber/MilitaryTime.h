@@ -11,10 +11,7 @@
 class MilitaryTime
 {
   public:
-    void loop();
     String getFormattedTime();
-    void addSeconds(int value);
   private:
-    String _formatted;
   	String addMissingDigits(String value, int digitsRequired);
 };

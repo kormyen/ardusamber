@@ -11,12 +11,7 @@
 class Ardusamber
 {
   public:
-    void loop();
     String getFormattedTime();
-    void addSeconds(int value);
   private:
-    String _beat;
-    String _pulse;
-    String _formatted;
   	String addMissingDigits(String value, int digitsRequired);
 };

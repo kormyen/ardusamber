@@ -6,23 +6,14 @@
 #include "MilitaryTime.h"
 #include "TimeLib.h"
 
-void MilitaryTime::loop()
-{
-  _formatted = addMissingDigits(String(hour()), 2);
-  _formatted += ':';
-  _formatted += addMissingDigits(String(minute()), 2);
-  _formatted += ':';
-  _formatted += addMissingDigits(String(second()), 2);
-}
-
 String MilitaryTime::getFormattedTime()
 {
-  return _formatted;
-}
-
-void MilitaryTime::addSeconds(int value)
-{
-  adjustTime(value);
+  String formattedTime = addMissingDigits(String(hour()), 2);
+  formattedTime += ':';
+  formattedTime += addMissingDigits(String(minute()), 2);
+  formattedTime += ':';
+  formattedTime += addMissingDigits(String(second()), 2);
+  return formattedTime;
 }
 
 String MilitaryTime::addMissingDigits(String value, int digitsRequired)
