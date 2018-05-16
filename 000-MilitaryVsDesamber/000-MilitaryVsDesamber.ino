@@ -24,15 +24,11 @@ RBD::Button buttonHour(BUTTON_PIN_HOUR); // Button for time adjust add hour
 RBD::Button buttonMinute(BUTTON_PIN_MINUTE); // Button for time adjust add minute
 
 // SHARED VARIABLES
-int _hour = 0;
-int _minute = 0;
-int _second = 0;
+unsigned long _hour = 0;
+unsigned long _minute = 0;
+unsigned long _second = 0;
 unsigned long _milli = 0;
-
-// MILLI OFFSET VARIABLES
-unsigned long _milliOffset = 0;
-int _hourPrev = 0;
-int _minutePrev = 0;
+unsigned long _millisPrev = 0;
 
 void setup()
 {
@@ -41,19 +37,15 @@ void setup()
   lcd.backlight();
   lcd.home();
   lcd.clear();
-
-  // Set initial millis offset. If this is not done dTime calc goes over 999:999 at 23:59.
-  _milliOffset = millis();
 }
 
 void loop()
 {
   // SHARED VARIABLES
-  _hour = hour();
-  _minute = minute();
-  _second = second();
-  _milli = millis();
-  calcMilliOffset();
+  _hour = (unsigned long) hour();
+  _minute = (unsigned long) minute();
+  _second = (unsigned long) second();
+  calcMilli();
 
   // BUTTONS
   if(buttonHour.isPressed()) 
@@ -75,17 +67,18 @@ void loop()
   delay(86);
 }
 
-/// On rollover from midnight, Arduino millis are not reset we need to account for this - the Desamber calc uses millis.
-/// There might still be a problem if the clock is kept running for 49 days as Arduino's millis() will rollover to zero... TODO!
-void calcMilliOffset()
+// We expect _milli to be under 1000 for dTime calculations. This method does that.
+void calcMilli()
 {
-  if (_hour == 0 && _hourPrev == 23 && _minute == 0 && _minutePrev == 59)
+  unsigned long milliCurrent = millis(); // Get snapshot of time
+  
+  // How much time has passed, accounting for rollover with subtraction!
+  // Source: https://www.baldengineer.com/arduino-how-do-you-reset-millis.html
+  if ((unsigned long)(milliCurrent - _millisPrev) >= 1000)
   {
-    // The time just went from 11:59pm to 12:00am.
-    _milliOffset = millis();
+    _millisPrev = milliCurrent; // Use the snapshot to set track time until next event
   }
-  _hourPrev = _hour;
-  _minutePrev = _minute;
+  _milli = milliCurrent - _millisPrev;
 }
 
 void writeToScreen(String value, int posX, int posY)
@@ -101,18 +94,18 @@ String getMilitaryTime()
   milTime += addMissingDigits(String(_minute), 2);
   milTime += ':';
   milTime += addMissingDigits(String(_second), 2);
-
   return milTime;
 }
 
 String getDesamberTime()
 {
   // Calculate Desamber time
-  unsigned long _dTime = (_hour * 3600000 + _minute * 60000 + _milli - _milliOffset) / 86.4;
+  unsigned long _dTimeMid = (_hour * 3600000) + (_minute * 60000) + (_second * 1000) + _milli;
+  unsigned long _dTime = _dTimeMid / 86.4;
 
   // Format to string with filler zero characters up to six total characters
   String _dTimeString = addMissingDigits(String(_dTime), 6);
-
+  
   // Add ':' seperator between beat and pulse 
   return insertString(_dTimeString, ":", 3);
 }
