@@ -8,10 +8,10 @@ Desamber is a time format created by [Devine Lu Linvega](https://github.com/neau
 
 This experiment was built with an `Arduino Uno`, an `Open Smart I2C / IIC LCD 1602 Display Module` and two `Momentary buttons`. This sketch does not use a `RTC (real-time clock)`, the time is instead set via the momentary buttons.
 
-## Guide
+<img src='https://raw.githubusercontent.com/kormyen/Ardusamber/master/000-MilitaryVsDesamber/PREVIEW.jpg' width="600"/>
 
-- Press buttons until time is correct
-- Enjoy
+
+## Guide
 
 ### Wiring for LCD
 
@@ -19,6 +19,19 @@ This experiment was built with an `Arduino Uno`, an `Open Smart I2C / IIC LCD 16
 - VCC to 5V
 - SDA to Analog 4
 - ​SCL to Analog 5
+
+### Wiring for buttons
+
+- Hour button - wire one side to Arduino GND and the other to pin 7.
+- Minute button - wire one side to Arduino GND and the other to pin 6.
+
+### Usage
+
+- Upload code with [Arduino IDE](https://www.arduino.cc/en/Main/Software)
+- Connect power to your Arduino
+- Press buttons until time is correct
+- Enjoy
+
 
 ## Dependencies
 
