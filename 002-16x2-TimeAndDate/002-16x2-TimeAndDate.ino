@@ -18,12 +18,13 @@
 
 enum Mode 
 {
+  DESC,
   DESAMBER,
   GREGORIAN,
   TIME,
   DATE
 };
-Mode _mode = DESAMBER;
+Mode _mode = DESC;
 
 Ardusamber _dTime = Ardusamber();
 MilitaryTime _mTime = MilitaryTime();
@@ -50,7 +51,12 @@ void loop()
 {
   if(buttonMode.isPressed()) 
   {
-    if (_mode == DESAMBER)
+    if (_mode == DESC)
+    {
+      _lcd.clear();
+      _mode = DESAMBER;
+    }
+    else if (_mode == DESAMBER)
     {
       _lcd.clear();
       _mode = GREGORIAN;
@@ -68,11 +74,17 @@ void loop()
     else if (_mode == DATE)
     {
       _lcd.clear();
-      _mode = DESAMBER;
+      _mode = DESC;
     }
   }
 
-  if (_mode == DESAMBER)
+  if (_mode == DESC)
+  {
+    writeToScreen("The Time is", 2, 0);
+    writeToScreen(_dTime.getFormattedTime() + ".", 4, 1);
+    delay(86);
+  }
+  else if (_mode == DESAMBER)
   {
     writeToScreen(_dTime.getFormattedTime(), 4, 0);
     writeToScreen(_dTime.getFormattedDate(), 5, 1);
