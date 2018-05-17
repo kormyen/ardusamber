@@ -12,6 +12,8 @@ class Ardusamber
 {
   public:
     String getFormattedTime();
+    String getFormattedDate();
   private:
   	String addMissingDigits(String value, int digitsRequired);
+  	int calculateDayOfYear(int day, int month, int year);
 };

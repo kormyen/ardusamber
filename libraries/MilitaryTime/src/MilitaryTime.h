@@ -1,9 +1,8 @@
-/*! \file Ardusamber.h
+/*! \file MilitaryTime.h
  *
- * This is the main header file for the %Ardusamber library.
+ * This is the main header file for the %MilitaryTime library.
  *
- * This is library is for using Devine Lu Linvega's time format 'Desamber' with Arduino.
- * More information about Desamber here: https://wiki.xxiivv.com/#clock
+ * This is simple library is for handling formatted 24-hour time.
  * */
 
 #include "Arduino.h"
@@ -12,6 +11,7 @@ class MilitaryTime
 {
   public:
     String getFormattedTime();
+    String getFormattedDate();
   private:
   	String addMissingDigits(String value, int digitsRequired);
 };

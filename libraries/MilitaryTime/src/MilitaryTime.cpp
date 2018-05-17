@@ -16,6 +16,15 @@ String MilitaryTime::getFormattedTime()
   return formattedTime;
 }
 
+String MilitaryTime::getFormattedDate()
+{
+  return String(year()).substring(2, 4)
+    + "-" 
+    + addMissingDigits(String(month()), 2) 
+    + "-" 
+    + addMissingDigits(String(day()), 2);
+}
+
 String MilitaryTime::addMissingDigits(String value, int digitsRequired)
 {
   int missingDigits = digitsRequired - value.length();

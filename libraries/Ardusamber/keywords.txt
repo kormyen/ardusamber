@@ -1,2 +1,3 @@
 Ardusamber	KEYWORD1
 getFormattedTime	KEYWORD2
+getFormattedDate	KEYWORD2
