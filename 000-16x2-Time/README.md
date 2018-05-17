@@ -1,4 +1,4 @@
-# Military vs Desamber
+# Time
 
 This Arduino sketch displays 24-hour time (Military time) and Desamber time on a 16 character by 2 line display.
 
@@ -8,7 +8,7 @@ Desamber is a time format created by [Devine Lu Linvega](https://github.com/neau
 
 This experiment was built with an `Arduino Uno`, an `Open Smart I2C / IIC LCD 1602 Display Module` and two `Momentary buttons`. This sketch does not use a `RTC (real-time clock)`, the time is instead set via the momentary buttons.
 
-<img src='https://raw.githubusercontent.com/kormyen/Ardusamber/master/000-Time/PREVIEW.jpg' width="600"/>
+<img src='https://raw.githubusercontent.com/kormyen/Ardusamber/master/000-16x2-Time/PREVIEW.jpg' width="600"/>
 
 
 ## Guide

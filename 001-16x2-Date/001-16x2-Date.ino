@@ -1,6 +1,6 @@
 /*
- * This Arduino sketch displays 24-hour time (Military time) and Desamber time.
- * It includes buttons to set the time. One button adds an hour, the other adds a minute.
+ * This Arduino sketch displays YY-MM-DD date format and Desamber date format on a 16 character by 2 line display.
+ * It includes buttons to set the date. One button adds a year, one adds a month, one adds a day and one subtracks a day.
  * Desamber is a time format created by Devine Lu Linvega. More information about Desamber here: https://wiki.xxiivv.com/#clock
  */
 

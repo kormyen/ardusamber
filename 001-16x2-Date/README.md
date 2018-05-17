@@ -1,4 +1,4 @@
-# Military vs Desamber
+# Date
 
 This Arduino sketch displays YY-MM-DD date format and Desamber date format on a 16 character by 2 line display.
 
