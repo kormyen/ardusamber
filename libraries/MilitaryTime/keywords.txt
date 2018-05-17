@@ -1,0 +1,2 @@
+MilitaryTime	KEYWORD1
+getFormattedTime	KEYWORD2

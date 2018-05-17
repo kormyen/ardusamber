@@ -1,0 +1,12 @@
+[submodule "libraries/LiquidCrystal_I2C"]
+	path = libraries/LiquidCrystal_I2C
+	url = https://github.com/marcoschwartz/LiquidCrystal_I2C
+[submodule "libraries/Time"]
+	path = libraries/Time
+	url = https://github.com/PaulStoffregen/Time
+[submodule "libraries/RBD_Button"]
+	path = libraries/RBD_Button
+	url = https://github.com/alextaujenis/RBD_Button
+[submodule "libraries/RBD_Timer"]
+	path = libraries/RBD_Timer
+	url = https://github.com/alextaujenis/RBD_Timer
