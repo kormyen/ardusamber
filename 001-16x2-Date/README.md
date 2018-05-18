@@ -6,7 +6,7 @@ It includes buttons to set the date. One button adds a year, one adds a month, o
 
 Desamber is a time/date format created by [Devine Lu Linvega](https://github.com/neauoire). More information about Desamber [here](https://wiki.xxiivv.com/#clock).
 
-This experiment was built with an `Arduino Uno`, an `Open Smart I2C / IIC LCD 1602 Display Module` and four `Momentary buttons`. This sketch does not use a `RTC (real-time clock)`, the date is instead set via the momentary buttons.
+This experiment was built with an `Arduino Uno`, an `Open Smart I2C / IIC LCD 1602 Display Module` and four `Momentary buttons`. This sketch does not use a `RTC (real-time clock)`, the date is instead set via the buttons.
 
 <img src='https://raw.githubusercontent.com/kormyen/Ardusamber/master/001-16x2-Date/PREVIEW.jpg' width="600"/>
 
@@ -26,11 +26,16 @@ This experiment was built with an `Arduino Uno`, an `Open Smart I2C / IIC LCD 16
 - Day add button - wire one side to Arduino GND and the other to pin 5.
 - Day minus button - wire one side to Arduino GND and the other to pin 4.
 
+### Setup
+
+- Connect your Arduino to your PC with a USB cable
+- Open and configure the [Arduino IDE](https://www.arduino.cc/en/Main/Software) for your Arduino
+- Open the `.ino` sketch that is in this directory
+- Upload the sketch to your Arduino
+
 ### Usage
 
-- Upload code with [Arduino IDE](https://www.arduino.cc/en/Main/Software)
-- Connect power to your Arduino
-- Press buttons until date is correct
+- Press the buttons until date is correct
 - Enjoy
 
 
