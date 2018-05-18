@@ -35,7 +35,10 @@ This experiment was built with an `Arduino Uno`, an `Open Smart I2C / IIC LCD 16
 
 - Upload code with [Arduino IDE](https://www.arduino.cc/en/Main/Software)
 - Connect power to your Arduino
-- Press buttons until date is correct
+- Press mode button (three times) until 24-hour and Desamber times are displayed
+- Press buttons until time is correct (add year, add month, add day)
+- Press mode button (once more) until YY-MM-DD and Deasmber dates are displayed
+- Press buttons until date is correct (add hour, add minute, add second)
 - Enjoy
 
 
