@@ -8,6 +8,7 @@ Desamber is a time/date format created by [Devine Lu Linvega](https://github.com
 
 This experiment was built with an `Arduino Uno`, an `Open Smart I2C / IIC LCD 1602 Display Module` and four `Momentary buttons`. This sketch does not use a `RTC (real-time clock)`, the date is instead set via the momentary buttons.
 
+<img src='https://raw.githubusercontent.com/kormyen/Ardusamber/master/001-16x2-Date/PREVIEW.jpg' width="600"/>
 
 ## Guide
 

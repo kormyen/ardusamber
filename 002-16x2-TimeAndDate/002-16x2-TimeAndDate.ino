@@ -87,7 +87,7 @@ void loop()
   else if (_mode == DESAMBER)
   {
     writeToScreen(_dTime.getFormattedTime(), 4, 0);
-    writeToScreen(_dTime.getFormattedDate(), 5, 1);
+    writeToScreen(_dTime.getFormattedDate(), 6, 1);
     delay(86);
   }
   else if (_mode == GREGORIAN)
@@ -134,7 +134,7 @@ void loop()
     }
 
     writeToScreen(_mTime.getFormattedDate(), 4, 0);
-    writeToScreen(_dTime.getFormattedDate(), 6, 1);
+    writeToScreen(_dTime.getFormattedDate(), 7, 1);
     delay(86);
   }
 }
