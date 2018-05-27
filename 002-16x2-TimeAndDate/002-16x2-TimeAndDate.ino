@@ -11,8 +11,8 @@
 
 #include "Ardusamber.h"
 #include "MilitaryTime.h"
+#include "Bun.h"
 
-#include "RBD_Button.h"
 #include "LiquidCrystal_I2C.h"
 #include "TimeLib.h"
 
@@ -29,10 +29,10 @@ Mode _mode = DESC;
 Ardusamber _dTime = Ardusamber();
 MilitaryTime _mTime = MilitaryTime();
 
-RBD::Button buttonOne(7);
-RBD::Button buttonTwo(6);
-RBD::Button buttonThree(5);
-RBD::Button buttonMode(4);
+Bun buttonOne(7);
+Bun buttonTwo(6);
+Bun buttonThree(5);
+Bun buttonMode(4);
 
 LiquidCrystal_I2C _lcd(0x20,16,2); // Set the LCD address to 0x20 for a 16 chars and 2 line display
 

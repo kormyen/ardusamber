@@ -1,0 +1,5 @@
+Bun	KEYWORD1
+isPressed	KEYWORD2
+isReleased	KEYWORD2
+onPressed	KEYWORD2
+onReleased	KEYWORD2
