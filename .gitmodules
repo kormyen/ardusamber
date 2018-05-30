@@ -10,3 +10,6 @@
 [submodule "libraries/RBD_Timer"]
 	path = libraries/RBD_Timer
 	url = https://github.com/alextaujenis/RBD_Timer
+[submodule "libraries/Adafruit-GFX-Library"]
+	path = libraries/Adafruit-GFX-Library
+	url = https://github.com/adafruit/Adafruit-GFX-Library
