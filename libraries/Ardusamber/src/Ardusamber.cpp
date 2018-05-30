@@ -7,6 +7,7 @@
 #include "Ardusamber.h"
 #include "TimeLib.h"
 #include "Math.h"
+#include "stdlib.h"
 
 String Ardusamber::getFormattedTime()
 {
@@ -15,15 +16,76 @@ String Ardusamber::getFormattedTime()
   unsigned long milli = String(millis()).substring(milliString.length()-3, milliString.length()).toInt();
 
   // Calculate Desamber time
-  unsigned long dTime = ((hour() * 3600000) + (minute() * 60000) + (second() * 1000) + milli) / 86.4;
+  double msSinceMidnight = (hour() * 3600000) + (minute() * 60000) + (second() * 1000) + milli;
+  double val = msSinceMidnight / 8640.0 / 10000.0; /// 86.4; // 4 byte float (double) to hold 6 decimal places
+  char charVal[9];
+  String valString = dtostrf(val, 9, 6, charVal); // 9 digits total (incl decimal point), 6 digits after decimal point. 
 
-  // Format to string with filler zero characters up to six total characters
-  String dTimeString = addMissingDigits(String(dTime), 6);
+  beatString = "";
+  // BEAT
+  for (int i = 3; i < 6; ++i)
+  {
+    beatString += charVal[i];
+  }
+  beat = beatString.toInt();
+  beatTens = beatString.substring(1,3).toInt();
+  beatOnes = beatString.substring(2,3).toInt();
 
-  String formattedTime = dTimeString.substring(0, 3);
-  formattedTime += ":";
-  formattedTime += dTimeString.substring(3, 6);
-  return formattedTime;
+  // PULSE
+  pulseString = "";
+  for (int i = 6; i < 9; ++i)
+  {
+    if (charVal[i] != 0)
+    {
+      pulseString += charVal[i];
+    }
+    else
+    {
+      pulseString += 0;
+    }
+  }
+  pulse = pulseString.toInt();
+  pulseTens = pulseString.substring(1,3).toInt();
+  pulseOnes = pulseString.substring(2,3).toInt();
+
+  timeString = beatString + pulseString;
+
+  return beatString + ":" + pulseString;
+}
+
+String Ardusamber::getTimeString()
+{
+  return timeString;
+}
+
+int Ardusamber::getTimeBeat()
+{
+  return beat;
+}
+
+int Ardusamber::getTimeBeatTens()
+{
+  return beatTens;
+}
+
+int Ardusamber::getTimeBeatOnes()
+{
+  return beatOnes;
+}
+
+int Ardusamber::getTimePulse()
+{
+  return pulse;
+}
+
+int Ardusamber::getTimePulseTens()
+{
+  return pulseTens;
+}
+
+int Ardusamber::getTimePulseOnes()
+{
+  return pulseOnes;
 }
 
 String Ardusamber::getFormattedDate()
