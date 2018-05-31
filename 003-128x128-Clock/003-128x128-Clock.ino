@@ -5,7 +5,7 @@
 #include <Adafruit_GFX.h>
 #include <TFT_ILI9163C.h>
 
-Ardusamber _dTime = Ardusamber();
+Ardusamber _dTime;
 
 // Color definitions
 #define	BLACK   0x0000
@@ -22,28 +22,34 @@ Ardusamber _dTime = Ardusamber();
 #define CONTAINER_SIZE 100
 
 #define SEPERATION 8
-#define TIME_H 22
+#define TIME_H 26
 
 TFT_ILI9163C tft = TFT_ILI9163C(10, 8, 9);
 
 void setup(void)
 {
+  setTime(2, 22, 10, 1, 6, 2018);
+    
   Serial.begin(9600);
 
   tft.begin();
   tft.fillScreen(BLACK);
   tft.setTextColor(WHITE,BLACK);
   tft.setTextSize(1);
-
-  setTime(1, 48, 30, 30, 5, 2018);
+  
   DrawContainer();
 }
 
 void loop()
 {
+  //tft.setCursor(20, 20);
+  //tft.println(_dTime.getMillis());
+  
   DrawClock();
   DrawText();
+  
   delay(86);
+  //delay(1000);
 }
 
 void DrawContainer()
@@ -115,7 +121,7 @@ void DrawLineThree(int posThree, int posTwo, uint16_t color)
 
 void DrawText()
 {
-  String dTime = _dTime.getFormattedDate() + "  " + _dTime.getFormattedTime();
+  String dTime = _dTime.getFormattedDate() + " " + _dTime.getFormattedTime();
   tft.setCursor(TIME_H, OFFSET_V + CONTAINER_SIZE + SEPERATION);
   tft.println(dTime);
 }

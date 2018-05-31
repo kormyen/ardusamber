@@ -11,12 +11,15 @@
 
 String Ardusamber::getFormattedTime()
 {
-  // This keeps the _milli value under 1000 for dTime calculations.
-  String milliString = String(millis());
-  unsigned long milli = String(millis()).substring(milliString.length()-3, milliString.length()).toInt();
+  secondCur = second();
+  if (secondCur != secondPrev)
+  {
+    secondPrev = secondCur;
+    millisOffset = millis();
+  }
 
-  // Calculate Desamber time
-  double msSinceMidnight = (hour() * 3600000) + (minute() * 60000) + (second() * 1000) + milli;
+  // Calculate Desamber time. 10,800,000 + 3,180,000 + 33,000 + 23 = 14,013,023
+  unsigned long msSinceMidnight = (hour() * 3600000UL) + (minute() * 60000UL) + (second() * 1000UL) + millis() - millisOffset;
   double val = msSinceMidnight / 8640.0 / 10000.0; /// 86.4; // 4 byte float (double) to hold 6 decimal places
   char charVal[9];
   String valString = dtostrf(val, 9, 6, charVal); // 9 digits total (incl decimal point), 6 digits after decimal point. 
@@ -49,6 +52,18 @@ String Ardusamber::getFormattedTime()
   pulseOnes = pulseString.substring(2,3).toInt();
 
   timeString = beatString + pulseString;
+
+  Serial.print(timeString);
+  Serial.print(". msSinceMidnight = ");
+  Serial.print(msSinceMidnight);
+  Serial.print(". hour = ");
+  Serial.print(hour());
+  Serial.print(". minute = ");
+  Serial.print(minute());
+  Serial.print(". second = ");
+  Serial.print(second());
+  Serial.print(". millis = ");
+  Serial.println(millis() - millisOffset);
 
   return beatString + ":" + pulseString;
 }
