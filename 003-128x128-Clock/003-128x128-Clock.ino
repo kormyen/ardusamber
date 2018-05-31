@@ -1,36 +1,19 @@
 #include "Ardusamber.h"
-
 #include "TimeLib.h"
-#include <SPI.h>
-#include <Adafruit_GFX.h>
-#include <TFT_ILI9163C.h>
-
-Ardusamber _dTime;
-
-// Color definitions
-#define	BLACK   0x0000
-#define	BLUE    0x001F
-#define	RED     0xF800
-#define	GREEN   0x07E0
-#define CYAN    0x07FF
-#define MAGENTA 0xF81F
-#define YELLOW  0xFFE0  
-#define WHITE   0xFFFF
+#include "TFT_ILI9163C.h"
 
 #define OFFSET_H 14
-#define OFFSET_V 4
+#define OFFSET_V 6
 #define CONTAINER_SIZE 100
-
 #define SEPERATION 8
-#define TIME_H 26
+#define TIME_H 25
 
+Ardusamber _dTime;
 TFT_ILI9163C tft = TFT_ILI9163C(10, 8, 9);
 
-void setup(void)
+void setup()
 {
-  setTime(2, 23, 50, 1, 6, 2018);
-    
-  Serial.begin(9600);
+  setTime(5, 20, 00, 1, 6, 2018);
 
   tft.begin();
   tft.fillScreen(BLACK);

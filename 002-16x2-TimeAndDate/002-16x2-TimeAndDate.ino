@@ -12,7 +12,6 @@
 #include "Ardusamber.h"
 #include "MilitaryTime.h"
 #include "Bun.h"
-
 #include "LiquidCrystal_I2C.h"
 #include "TimeLib.h"
 
@@ -26,29 +25,29 @@ enum Mode
 };
 Mode _mode = DESC;
 
-Ardusamber _dTime = Ardusamber();
-MilitaryTime _mTime = MilitaryTime();
+Ardusamber _dTime;
+MilitaryTime _mTime;
+LiquidCrystal_I2C _lcd(0x20,16,2); // Set the LCD address to 0x20 for a 16 chars and 2 line display
 
 Bun buttonOne(7);
 Bun buttonTwo(6);
 Bun buttonThree(5);
 Bun buttonMode(4);
 
-LiquidCrystal_I2C _lcd(0x20,16,2); // Set the LCD address to 0x20 for a 16 chars and 2 line display
-
 void setup()
 {
+  setTime(17,32, 00, 17, 5, 2018);
+  
   _lcd.init();
   _lcd.backlight();
   _lcd.home();
   _lcd.clear();
-
-  setTime(17,32, 00, 17, 5, 2018);
-  Serial.begin(9600);
 }
 
 void loop()
 {
+  _dTime.update();
+  
   if(buttonMode.isPressed()) 
   {
     if (_mode == DESC)
