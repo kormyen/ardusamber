@@ -6,69 +6,61 @@
 #include "Arduino.h"
 #include "Ardusamber.h"
 #include "TimeLib.h"
-#include "Math.h"
-#include "stdlib.h"
 
 void Ardusamber::update()
 {
   // Calculate current millisOffset.
-  unsigned long secondCur = second();
-  if (secondCur != secondPrev)
+  _secondCur = second();
+  if (_secondCur != _secondPrev)
   {
-    secondPrev = secondCur;
-    millisOffset = millis();
+    _secondPrev = _secondCur;
+    _millisOffset = millis();
   }
 
-  // Calculate Desamber time.
-  unsigned long msSinceMidnight = (hour() * 3600000UL) + (minute() * 60000UL) + (second() * 1000UL) + millis() - millisOffset;
-  double dtCalc = msSinceMidnight / 8640.0 / 10000.0; /// 86.4; // 4 byte float (double) to hold 6 decimal places
-
-  // Format Desamber time calculation.
-  char dtFormatting[9];
-  dtostrf(dtCalc, 8, 6, dtFormatting); // format value to 6 digits past decimal point.
-
-  // Set Desamber values.
-  beat = String(dtFormatting).substring(2,5);
-  pulse = String(dtFormatting).substring(5,8);
+  // Calculate Desamber beat and pulse.
+  _msSinceMidnight = (hour() * 3600000UL) + (minute() * 60000UL) + (second() * 1000UL) + millis() - _millisOffset;
+  _dtCalc = _msSinceMidnight / 8640.0 / 10000.0;
+  dtostrf(_dtCalc, 8, 6, _dtFormatting); // format _dtCalc to 6 digits past decimal point.
+  _beat = String(_dtFormatting).substring(2,5); // skip first two characters of _dtFormatting (which are "0.")
+  _pulse = String(_dtFormatting).substring(5,8);
 }
 
 String Ardusamber::getTime()
 {
-  return beat + pulse;
+  return _beat + _pulse;
 }
 
 String Ardusamber::getFormattedTime()
 {
-  return beat + ":" + pulse;
+  return _beat + ":" + _pulse;
 }
 
 String Ardusamber::getFormattedDate()
 {
-  char months[27] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ+";
-  int doty = calculateDayOfYear(day(), month(), year());
-  int month = floor(((doty - 1) / 364.0) * 26.0);
-  int day = doty - (14 * month);
-
-  String formattedTime;
-  formattedTime += String(year()).substring(2, 4);
-  formattedTime += String(months[month]);
-  formattedTime += addMissingDigits(String(day), 2);
-
-  return formattedTime;
-}
-
-String Ardusamber::addMissingDigits(String value, int digitsRequired)
-{
-  int missingDigits = digitsRequired - value.length();
-  String result = "";
-  
-  for (int i = 0; i < missingDigits; i++)
+  _thisDateRef = year() + month() + day();
+  if (_thisDateRef == _prevFormattedDateRef)
   {
-    result += "0";
+    // FormattedDate hasn't changed.
+    return _prevFormattedDate;
   }
-  
-  result += value;
-  return result;
+  else
+  {
+    // FormattedDate needs to be updated.
+    _prevFormattedDateRef = _thisDateRef;
+    char months[27] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ+";
+    int doty = calculateDayOfYear(day(), month(), year());
+    int month = floor(((doty - 1) / 364.0) * 26.0);
+    int day = doty - (14 * month);
+
+    _prevFormattedDate = "";
+    _prevFormattedDate += String(year()).substring(2, 4);
+    _prevFormattedDate += String(months[month]);
+    char dayBuffer[3];
+    sprintf(dayBuffer, "%02d", day);
+    _prevFormattedDate += dayBuffer;
+
+    return _prevFormattedDate;
+  }
 }
 
 // Source: https://gist.github.com/jrleeman/3b7c10712112e49d8607

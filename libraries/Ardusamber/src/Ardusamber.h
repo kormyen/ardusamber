@@ -16,10 +16,19 @@ class Ardusamber
     String getFormattedTime();
     String getFormattedDate();
   private:
-    String beat;
-    String pulse;
-    unsigned long millisOffset;
-    unsigned long secondPrev;
+    String _beat;
+    String _pulse;
     String addMissingDigits(String value, int digitsRequired);
     int calculateDayOfYear(int day, int month, int year);
+
+    unsigned long _millisOffset;
+    unsigned long _secondPrev;
+    unsigned long _secondCur;
+    unsigned long _msSinceMidnight;
+    double _dtCalc;
+    char _dtFormatting[9];
+
+    String _prevFormattedDate;
+    String _prevFormattedDateRef;
+    String _thisDateRef;
 };
