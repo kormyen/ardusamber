@@ -9,115 +9,47 @@
 #include "Math.h"
 #include "stdlib.h"
 
-String Ardusamber::getFormattedTime()
+void Ardusamber::update()
 {
-  secondCur = second();
+  // Calculate current millisOffset.
+  unsigned long secondCur = second();
   if (secondCur != secondPrev)
   {
     secondPrev = secondCur;
     millisOffset = millis();
   }
 
-  // Calculate Desamber time. 10,800,000 + 3,180,000 + 33,000 + 23 = 14,013,023
+  // Calculate Desamber time.
   unsigned long msSinceMidnight = (hour() * 3600000UL) + (minute() * 60000UL) + (second() * 1000UL) + millis() - millisOffset;
-  double val = msSinceMidnight / 8640.0 / 10000.0; /// 86.4; // 4 byte float (double) to hold 6 decimal places
-  char charVal[9];
-  String valString = dtostrf(val, 9, 6, charVal); // 9 digits total (incl decimal point), 6 digits after decimal point. 
+  double dtCalc = msSinceMidnight / 8640.0 / 10000.0; /// 86.4; // 4 byte float (double) to hold 6 decimal places
 
-  beatString = "";
-  // BEAT
-  for (int i = 3; i < 6; ++i)
-  {
-    beatString += charVal[i];
-  }
-  beat = beatString.toInt();
-  beatTens = beatString.substring(1,3).toInt();
-  beatOnes = beatString.substring(2,3).toInt();
+  // Format Desamber time calculation.
+  char dtFormatting[9];
+  dtostrf(dtCalc, 8, 6, dtFormatting); // format value to 6 digits past decimal point.
 
-  // PULSE
-  pulseString = "";
-  for (int i = 6; i < 9; ++i)
-  {
-    if (charVal[i] != 0)
-    {
-      pulseString += charVal[i];
-    }
-    else
-    {
-      pulseString += 0;
-    }
-  }
-  pulse = pulseString.toInt();
-  pulseTens = pulseString.substring(1,3).toInt();
-  pulseOnes = pulseString.substring(2,3).toInt();
-
-  timeString = beatString + pulseString;
-
-  Serial.print(timeString);
-  Serial.print(". msSinceMidnight = ");
-  Serial.print(msSinceMidnight);
-  Serial.print(". hour = ");
-  Serial.print(hour());
-  Serial.print(". minute = ");
-  Serial.print(minute());
-  Serial.print(". second = ");
-  Serial.print(second());
-  Serial.print(". millis = ");
-  Serial.println(millis() - millisOffset);
-
-  return beatString + ":" + pulseString;
+  // Set Desamber values.
+  beat = String(dtFormatting).substring(2,5);
+  pulse = String(dtFormatting).substring(5,8);
 }
 
-String Ardusamber::getTimeString()
+String Ardusamber::getTime()
 {
-  return timeString;
+  return beat + pulse;
 }
 
-int Ardusamber::getTimeBeat()
+String Ardusamber::getFormattedTime()
 {
-  return beat;
-}
-
-int Ardusamber::getTimeBeatTens()
-{
-  return beatTens;
-}
-
-int Ardusamber::getTimeBeatOnes()
-{
-  return beatOnes;
-}
-
-int Ardusamber::getTimePulse()
-{
-  return pulse;
-}
-
-int Ardusamber::getTimePulseTens()
-{
-  return pulseTens;
-}
-
-int Ardusamber::getTimePulseOnes()
-{
-  return pulseOnes;
+  return beat + ":" + pulse;
 }
 
 String Ardusamber::getFormattedDate()
 {
   char months[27] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ+";
   int doty = calculateDayOfYear(day(), month(), year());
-
   int month = floor(((doty - 1) / 364.0) * 26.0);
-  //month += floor(doty / 14) + 1;
-  
   int day = doty - (14 * month);
-  //String day = addMissingDigits(String(doty % 26), 2);
-  // addMissingDigits(day, 2)
 
   String formattedTime;
-  //formattedTime += doty;
-  //formattedTime += "   ";
   formattedTime += String(year()).substring(2, 4);
   formattedTime += String(months[month]);
   formattedTime += addMissingDigits(String(day), 2);

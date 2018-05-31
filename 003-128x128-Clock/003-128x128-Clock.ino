@@ -28,7 +28,7 @@ TFT_ILI9163C tft = TFT_ILI9163C(10, 8, 9);
 
 void setup(void)
 {
-  setTime(2, 22, 10, 1, 6, 2018);
+  setTime(2, 23, 50, 1, 6, 2018);
     
   Serial.begin(9600);
 
@@ -42,14 +42,12 @@ void setup(void)
 
 void loop()
 {
-  //tft.setCursor(20, 20);
-  //tft.println(_dTime.getMillis());
+  _dTime.update();
   
   DrawClock();
   DrawText();
   
   delay(86);
-  //delay(1000);
 }
 
 void DrawContainer()
@@ -68,9 +66,9 @@ int beatThreePosPrev = -100;
 void DrawClock()
 {
   // Get values
-  int beatOnePos = _dTime.getTimeString().toInt() / 1000000.00 * CONTAINER_SIZE +1;
-  int beatTwoPos = _dTime.getTimeString().substring(1,6).toInt() / 100000.00 * CONTAINER_SIZE +1;
-  int beatThreePos = _dTime.getTimeString().substring(2,6).toInt() / 10000.00 * (CONTAINER_SIZE - beatOnePos) + beatOnePos +1;
+  int beatOnePos = _dTime.getTime().toInt() / 1000000.00 * CONTAINER_SIZE +1;
+  int beatTwoPos = _dTime.getTime().substring(1,6).toInt() / 100000.00 * CONTAINER_SIZE +1;
+  int beatThreePos = _dTime.getTime().substring(2,6).toInt() / 10000.00 * (CONTAINER_SIZE - beatOnePos) + beatOnePos +1;
 
 //  if (beatOnePos != beatOnePosPrev)
 //  {
