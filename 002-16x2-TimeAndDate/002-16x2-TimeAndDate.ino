@@ -12,8 +12,8 @@
 #include "Ardusamber.h"
 #include "MilitaryTime.h"
 #include "Bun.h"
-#include "LiquidCrystal_I2C.h"
 #include "TimeLib.h"
+#include "LiquidCrystal_I2C.h"
 
 enum Mode 
 {

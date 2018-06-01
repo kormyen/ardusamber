@@ -7,8 +7,8 @@
 #include "Ardusamber.h"
 #include "MilitaryTime.h"
 #include "Bun.h"
-#include "LiquidCrystal_I2C.h"
 #include "TimeLib.h"
+#include "LiquidCrystal_I2C.h"
 
 Ardusamber _dTime;
 MilitaryTime _mTime;
@@ -29,8 +29,6 @@ void setup()
 
 void loop()
 {
-  _dTime.update();
-  
   if(buttonHour.isPressed()) 
   {
     adjustTime(3600);
@@ -39,6 +37,8 @@ void loop()
   {
     adjustTime(60);
   }
+
+  _dTime.update();
 
   writeToScreen(_dTime.getFormattedTime(), 5, 1);
   writeToScreen(_mTime.getFormattedTime(), 4, 0);

@@ -1,108 +1,185 @@
 #include "Ardusamber.h"
+#include "Bun.h"
 #include "TimeLib.h"
 #include "TFT_ILI9163C.h"
 
 #define OFFSET_H 14
 #define OFFSET_V 6
+
 #define CONTAINER_SIZE 100
 #define SEPERATION 8
 #define TIME_H 25
 
+#define LINEOFFSET_START 1
+#define LINEOFFSET_END -1
+
+//#define DEBUG 0
+
+typedef void (*DrawLineCallback)(int, int, uint16_t);
+
 Ardusamber _dTime;
-TFT_ILI9163C tft = TFT_ILI9163C(10, 8, 9);
+TFT_ILI9163C _tft = TFT_ILI9163C(10, 8, 9);
+
+Bun _buttonBeatTwo(2);
+Bun _buttonBeatThree(3);
+Bun _buttonPulseOne(4);
+
+int _beatOnePos;
+int _beatOnePosPrev;
+int _beatTwoPos;
+int _beatTwoPosPrev;
+int _beatThreePos;
+int _beatThreePosPrev;
 
 void setup()
 {
+  #ifdef DEBUG
+  Serial.begin(9600);
+  #endif
+  
   setTime(5, 20, 00, 1, 6, 2018);
 
-  tft.begin();
-  tft.fillScreen(BLACK);
-  tft.setTextColor(WHITE,BLACK);
-  tft.setTextSize(1);
+  _tft.begin();
+  _tft.fillScreen(BLACK);
+  _tft.setTextColor(WHITE,BLACK);
+  _tft.setTextSize(1);
   
-  DrawContainer();
+  drawContainer();
+
+  // Pre setup so prev values can be set.
+  _dTime.update();
+  calcLinePositions();
+  setPrevValues();
 }
 
 void loop()
 {
+  if(_buttonBeatTwo.isPressed()) 
+  {
+    adjustTime(864);
+  }
+  if(_buttonBeatThree.isPressed()) 
+  {
+    adjustTime(86.4);
+  }
+  if(_buttonPulseOne.isPressed()) 
+  {
+    adjustTime(8.64);
+  }
+
+  // 24h*60m*60s = 86400 total seconds per day
+  // beat1  = 8640 s
+  // beat2  =  864 s
+  // beat3  =   86.4 s
+  // pulse1 =    8.64 s
+  // pulse2 =    0.864 s
+  // pulse3 =    0.0864 s
+
   _dTime.update();
   
-  DrawClock();
-  DrawText();
+  drawClock();
+  drawText();
   
   delay(86);
 }
 
-void DrawContainer()
+void drawContainer()
 {
-  tft.drawFastVLine( OFFSET_H, OFFSET_V, CONTAINER_SIZE, WHITE); // L
-  tft.drawFastHLine( OFFSET_H, OFFSET_V, CONTAINER_SIZE, WHITE); // T
+  _tft.drawFastVLine( OFFSET_H, OFFSET_V, CONTAINER_SIZE, WHITE); // L
+  _tft.drawFastHLine( OFFSET_H, OFFSET_V, CONTAINER_SIZE, WHITE); // T
+  _tft.drawFastVLine( OFFSET_H + CONTAINER_SIZE, OFFSET_V, CONTAINER_SIZE + 1, WHITE); // R
+  _tft.drawFastHLine( OFFSET_H, OFFSET_V + CONTAINER_SIZE, CONTAINER_SIZE, WHITE); // B
+}
+
+void calcLinePositions()
+{
+  _beatOnePos = (_dTime.getTime().toInt() / 1000000.00) * (CONTAINER_SIZE - 1);
+  _beatTwoPos = (_dTime.getTime().substring(1,6).toInt() / 100000.00) * (CONTAINER_SIZE - 1);
+  _beatThreePos = (_dTime.getTime().substring(2,6).toInt() / 10000.00) * ((CONTAINER_SIZE - 2) - _beatOnePos) + _beatOnePos;
+}
+
+void setPrevValues()
+{
+  _beatOnePosPrev = _beatOnePos;
+  _beatTwoPosPrev = _beatTwoPos;
+  _beatThreePosPrev = _beatThreePos;
+}
+
+void drawClock()
+{
+  calcLinePositions();
+
+  CalcLine(_beatThreePosPrev, _beatThreePos, CONTAINER_SIZE, _beatTwoPosPrev, _beatTwoPos, drawLineThree); // 3
+  CalcLine(_beatTwoPosPrev, _beatTwoPos, CONTAINER_SIZE, _beatOnePosPrev, _beatOnePos, drawLineTwo); // 2
+  CalcLine(_beatOnePosPrev, _beatOnePos, CONTAINER_SIZE, LINEOFFSET_START, LINEOFFSET_START, drawLineOne); // 1
   
-  tft.drawFastVLine( OFFSET_H + CONTAINER_SIZE, OFFSET_V, CONTAINER_SIZE + 1, WHITE); // R
-  tft.drawFastHLine( OFFSET_H, OFFSET_V + CONTAINER_SIZE, CONTAINER_SIZE, WHITE); // B
+  setPrevValues();
 }
 
-int beatOnePosPrev = -100;
-int beatTwoPosPrev = -100;
-int beatThreePosPrev = -100;
-
-void DrawClock()
+void CalcLine(int prev, int cur, int lineEnd, int refPrev, int refCur, DrawLineCallback doDraw)
 {
-  // Get values
-  int beatOnePos = _dTime.getTime().toInt() / 1000000.00 * CONTAINER_SIZE +1;
-  int beatTwoPos = _dTime.getTime().substring(1,6).toInt() / 100000.00 * CONTAINER_SIZE +1;
-  int beatThreePos = _dTime.getTime().substring(2,6).toInt() / 10000.00 * (CONTAINER_SIZE - beatOnePos) + beatOnePos +1;
+  if (cur != prev)
+  {
+    if (prev != 0 && prev != lineEnd)
+    {
+      // Clear line if it is not on another line
+      doDraw(prev, refPrev, BLACK);
+    }
 
-//  if (beatOnePos != beatOnePosPrev)
-//  {
-    DrawLineOne(beatOnePosPrev, BLACK);
-    DrawLineOne(beatOnePos, WHITE);
-//    Serial.println("One");
-//  }
-
-//  if (beatTwoPos != beatTwoPosPrev)
-//  {
-    DrawLineTwo(beatOnePosPrev, beatTwoPosPrev, BLACK);
-    DrawLineTwo(beatOnePos, beatTwoPos, WHITE);
-//    Serial.println("Two");
-//  }
-
-//  if (beatThreePos != beatThreePosPrev)
-//  {
-    DrawLineThree(beatThreePosPrev, beatTwoPosPrev, BLACK);
-    DrawLineThree(beatThreePos, beatTwoPos, WHITE);
-//    Serial.println("Three");
-//  }
-
-  beatOnePosPrev = beatOnePos;
-  beatTwoPosPrev = beatTwoPos;
-  beatThreePosPrev = beatThreePos;
-
-  DrawContainer();
-  
-  //tft.drawFastHLine(OFFSET_H, OFFSET_V + beatOnePos, CONTAINER_SIZE, WHITE);
-  //tft.drawFastVLine(OFFSET_H + beatTwoPos, OFFSET_V + beatOnePos, CONTAINER_SIZE - beatOnePos, WHITE);
-  //tft.drawFastHLine(OFFSET_H + beatTwoPos, OFFSET_V + beatThreePos, CONTAINER_SIZE - beatTwoPos, WHITE);
+    doDraw(cur, refCur, WHITE);
+  }
 }
 
-void DrawLineOne(int pos, uint16_t color)
+void drawLineOne(int vOffset, int hOffset, uint16_t color)
 {
-  tft.drawFastHLine(OFFSET_H, OFFSET_V + pos, CONTAINER_SIZE, color);
+  #ifdef DEBUG
+  if (color == 0xFFFF)
+  {
+    color = 0x001F; // blue
+  }
+  else
+  {
+    color = 0x000F; // navy
+  }
+  #endif
+  _tft.drawFastHLine(OFFSET_H + hOffset, OFFSET_V + vOffset + 1, CONTAINER_SIZE + LINEOFFSET_END, color);
 }
 
-void DrawLineTwo(int posOne, int posTwo, uint16_t color)
+void drawLineTwo(int hOffset, int vOffset, uint16_t color)
 {
-  tft.drawFastVLine(OFFSET_H + posTwo, OFFSET_V + posOne, CONTAINER_SIZE - posOne, color);
+  #ifdef DEBUG
+  if (color == 0xFFFF)
+  {
+    color = 0x07E0; // green
+  }
+  else
+  {
+    color = 0x03E0; // dark green
+  }
+  #endif
+  _tft.drawFastVLine(OFFSET_H + hOffset + 1, OFFSET_V + vOffset + 2, CONTAINER_SIZE + LINEOFFSET_END - vOffset - 1, color);
 }
 
-void DrawLineThree(int posThree, int posTwo, uint16_t color)
+void drawLineThree(int vOffset, int hOffset, uint16_t color)
 {
-  tft.drawFastHLine(OFFSET_H + posTwo, OFFSET_V + posThree, CONTAINER_SIZE - posTwo, color);
+  if (vOffset < CONTAINER_SIZE - 2) // Don't render if height exceeded
+  {
+    #ifdef DEBUG
+    if (color == 0xFFFF)
+    {
+      color = 0xF800; // red
+    }
+    else
+    {
+      color = 0x7800; // magenta
+    }
+    #endif
+    _tft.drawFastHLine(OFFSET_H + hOffset + 2, OFFSET_V + vOffset + 2, CONTAINER_SIZE - hOffset - 2, color);
+  }
 }
 
-void DrawText()
+void drawText()
 {
-  String dTime = _dTime.getFormattedDate() + " " + _dTime.getFormattedTime();
-  tft.setCursor(TIME_H, OFFSET_V + CONTAINER_SIZE + SEPERATION);
-  tft.println(dTime);
+  _tft.setCursor(TIME_H, OFFSET_V + CONTAINER_SIZE + SEPERATION);
+  _tft.println(_dTime.getFormattedDate() + " " + _dTime.getFormattedTime());
 }
