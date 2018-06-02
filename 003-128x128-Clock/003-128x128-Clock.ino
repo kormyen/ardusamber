@@ -3,19 +3,40 @@
 #include "TimeLib.h"
 #include "TFT_ILI9163C.h"
 
-#define OFFSET_H 14
-#define OFFSET_V 6
+#define CLOCK_X 14
+#define CLOCK_Y 6
+#define CLOCK_SIZE 100
+#define CLOCK_LINE_THICKNESS 1
 
-#define CONTAINER_SIZE 100
-#define SEPERATION 8
-#define TIME_H 25
+#define TEXT_X 25
+#define TEXT_MARGIN_Y 8
 
-#define LINEOFFSET_START 1
-#define LINEOFFSET_END -1
+//#define LINEOFFSET_START 1
+//#define LINEOFFSET_END -1
 
-//#define DEBUG 0
+#define DEBUG 0
 
-typedef void (*DrawLineCallback)(int, int, uint16_t);
+// DEBUG COLORS
+#define WHITE           0xFFFF      /* 255, 255, 255 */
+#define LIGHTGREY       0xC618      /* 192, 192, 192 */
+#define DARKGREY        0x7BEF      /* 128, 128, 128 */
+#define BLACK           0x0000      /*   0,   0,   0 */
+#define NAVY            0x000F      /*   0,   0, 128 */
+#define BLUE            0x001F      /*   0,   0, 255 */
+#define DARKCYAN        0x03EF      /*   0, 128, 128 */
+#define CYAN            0x07FF      /*   0, 255, 255 */
+#define GREEN           0x07E0      /*   0, 255,   0 */
+#define DARKGREEN       0x03E0      /*   0, 128,   0 */
+#define OLIVE           0x7BE0      /* 128, 128,   0 */
+#define GREENYELLOW     0xAFE5      /* 173, 255,  47 */
+#define YELLOW          0xFFE0      /* 255, 255,   0 */
+#define ORANGE          0xFD20      /* 255, 165,   0 */
+#define RED             0xF800      /* 255,   0,   0 */
+#define MAROON          0x7800      /* 128,   0,   0 */
+#define MAGENTA         0xF81F      /* 255,   0, 255 */
+#define PURPLE          0x780F      /* 128,   0, 128 */
+
+typedef void (*DrawLineCallback)(int, int, int, uint16_t);
 
 Ardusamber _dTime;
 TFT_ILI9163C _tft = TFT_ILI9163C(10, 8, 9);
@@ -24,17 +45,20 @@ Bun _buttonBeatTwo(2);
 Bun _buttonBeatThree(3);
 Bun _buttonPulseOne(4);
 
-int _beatOnePos;
-int _beatOnePosPrev;
-int _beatTwoPos;
-int _beatTwoPosPrev;
-int _beatThreePos;
-int _beatThreePosPrev;
+float _beatOnePerc;
+float _beatOnePercPrev;
+float _beatTwoPerc;
+float _beatTwoPercPrev;
+float _beatThreePerc;
+float _beatThreePercPrev;
+
+uint16_t _containerColor = WHITE;
 
 void setup()
 {
-  #ifdef DEBUG
   Serial.begin(9600);
+  #ifdef DEBUG
+  //_containerColor = 0x7BEF; // dark grey
   #endif
   
   setTime(5, 20, 00, 1, 6, 2018);
@@ -45,8 +69,8 @@ void setup()
   _tft.setTextSize(1);
   
   drawContainer();
-
-  // Pre setup so prev values can be set.
+  
+  // Pre-setup so prev values can be set.
   _dTime.update();
   calcLinePositions();
   setPrevValues();
@@ -85,101 +109,102 @@ void loop()
 
 void drawContainer()
 {
-  _tft.drawFastVLine( OFFSET_H, OFFSET_V, CONTAINER_SIZE, WHITE); // L
-  _tft.drawFastHLine( OFFSET_H, OFFSET_V, CONTAINER_SIZE, WHITE); // T
-  _tft.drawFastVLine( OFFSET_H + CONTAINER_SIZE, OFFSET_V, CONTAINER_SIZE + 1, WHITE); // R
-  _tft.drawFastHLine( OFFSET_H, OFFSET_V + CONTAINER_SIZE, CONTAINER_SIZE, WHITE); // B
+  _tft.drawFastVLine( CLOCK_X, CLOCK_Y, CLOCK_SIZE, _containerColor); // L
+  _tft.drawFastHLine( CLOCK_X, CLOCK_Y, CLOCK_SIZE, _containerColor); // T
+  _tft.drawFastVLine( CLOCK_X + CLOCK_SIZE, CLOCK_Y, CLOCK_SIZE + 1, _containerColor); // R
+  _tft.drawFastHLine( CLOCK_X, CLOCK_Y + CLOCK_SIZE, CLOCK_SIZE, _containerColor); // B
 }
 
 void calcLinePositions()
 {
-  _beatOnePos = (_dTime.getTime().toInt() / 1000000.00) * (CONTAINER_SIZE - 1);
-  _beatTwoPos = (_dTime.getTime().substring(1,6).toInt() / 100000.00) * (CONTAINER_SIZE - 1);
-  _beatThreePos = (_dTime.getTime().substring(2,6).toInt() / 10000.00) * ((CONTAINER_SIZE - 2) - _beatOnePos) + _beatOnePos;
+  _beatOnePerc = (_dTime.getTime().toInt() / 1000000.00);
+  _beatTwoPerc = (_dTime.getTime().substring(1,6).toInt() / 100000.00);
+  _beatThreePerc = (_dTime.getTime().substring(2,6).toInt() / 10000.00); 
 }
 
 void setPrevValues()
 {
-  _beatOnePosPrev = _beatOnePos;
-  _beatTwoPosPrev = _beatTwoPos;
-  _beatThreePosPrev = _beatThreePos;
+  _beatOnePercPrev = _beatOnePerc;
+  _beatTwoPercPrev = _beatTwoPerc;
+  _beatThreePercPrev = _beatThreePerc;
 }
 
+
+// The problem before was that I was not taking into account that the prev and cur lines are different lengths
 void drawClock()
 {
   calcLinePositions();
 
-  CalcLine(_beatThreePosPrev, _beatThreePos, CONTAINER_SIZE, _beatTwoPosPrev, _beatTwoPos, drawLineThree); // 3
-  CalcLine(_beatTwoPosPrev, _beatTwoPos, CONTAINER_SIZE, _beatOnePosPrev, _beatOnePos, drawLineTwo); // 2
-  CalcLine(_beatOnePosPrev, _beatOnePos, CONTAINER_SIZE, LINEOFFSET_START, LINEOFFSET_START, drawLineOne); // 1
+
+
+  // 1
+  int one_xPrev = CLOCK_LINE_THICKNESS;
+  int one_yPrev = CLOCK_LINE_THICKNESS + (_beatOnePercPrev * (CLOCK_SIZE - CLOCK_LINE_THICKNESS));
+  int one_lPrev = CLOCK_SIZE - CLOCK_LINE_THICKNESS;
+
+  int one_xCur = CLOCK_LINE_THICKNESS;
+  int one_yCur = CLOCK_LINE_THICKNESS + (_beatOnePerc * (CLOCK_SIZE - CLOCK_LINE_THICKNESS));
+  int one_lCur = CLOCK_SIZE - CLOCK_LINE_THICKNESS;
+
+  // 2
+  int two_xPrev = CLOCK_LINE_THICKNESS + (_beatTwoPercPrev * (CLOCK_SIZE - CLOCK_LINE_THICKNESS));
+  int two_yPrev = CLOCK_LINE_THICKNESS * 2 + (_beatOnePercPrev * (CLOCK_SIZE - CLOCK_LINE_THICKNESS));
+  int two_lPrev = CLOCK_SIZE - CLOCK_LINE_THICKNESS - (_beatOnePercPrev * (CLOCK_SIZE - CLOCK_LINE_THICKNESS));
+
+  int two_xCur = CLOCK_LINE_THICKNESS + (_beatTwoPerc * (CLOCK_SIZE - CLOCK_LINE_THICKNESS));
+  int two_yCur = CLOCK_LINE_THICKNESS * 2 + (_beatOnePerc * (CLOCK_SIZE - CLOCK_LINE_THICKNESS));
+  int two_lCur = CLOCK_SIZE - CLOCK_LINE_THICKNESS - (_beatOnePerc * (CLOCK_SIZE - CLOCK_LINE_THICKNESS));
+
+  // 3
+  int three_xPrev = CLOCK_LINE_THICKNESS + two_xPrev;
+  int three_yPrev = CLOCK_LINE_THICKNESS + one_yPrev + (_beatThreePercPrev * ((CLOCK_SIZE - CLOCK_LINE_THICKNESS) - one_yPrev));
+  int three_lPrev = CLOCK_SIZE - CLOCK_LINE_THICKNESS - (_beatTwoPercPrev * (CLOCK_SIZE - CLOCK_LINE_THICKNESS));
+
+  int three_xCur = CLOCK_LINE_THICKNESS + two_xCur;
+  int three_yCur = CLOCK_LINE_THICKNESS + one_yCur + (_beatThreePerc * ((CLOCK_SIZE - CLOCK_LINE_THICKNESS) - one_yCur));
+  int three_lCur = CLOCK_SIZE - CLOCK_LINE_THICKNESS - (_beatTwoPerc * (CLOCK_SIZE - CLOCK_LINE_THICKNESS));
+
   
+
+
+
+  if (three_yCur < CLOCK_SIZE) // Don't render if height exceeded (happens around 992:000+)
+  {
+    if (three_yPrev != three_yCur)
+    {
+      _tft.drawFastHLine(CLOCK_X + three_xPrev, CLOCK_Y + three_yPrev, three_lPrev, MAROON); // BLACK
+      _tft.drawFastHLine(CLOCK_X + three_xCur, CLOCK_Y + three_yCur, three_lCur, RED); // WHITE
+    }
+  }
+
+  if (two_xPrev != two_xCur)
+  {
+    _tft.drawFastVLine(CLOCK_X + two_xPrev, CLOCK_Y + two_yPrev, two_lPrev, DARKGREEN); // BLACK
+    _tft.drawFastVLine(CLOCK_X + two_xCur, CLOCK_Y + two_yCur, two_lCur, GREEN); // WHITE
+  }
+
+  if (one_yPrev != one_yCur)
+  {
+    _tft.drawFastHLine(CLOCK_X + one_xPrev, CLOCK_Y + one_yPrev, one_lPrev, NAVY); // BLACK
+    _tft.drawFastHLine(CLOCK_X + one_xCur, CLOCK_Y + one_yCur, one_lCur, BLUE); // WHITE
+  }
+
+  //drawContainer();
+
   setPrevValues();
 }
 
-void CalcLine(int prev, int cur, int lineEnd, int refPrev, int refCur, DrawLineCallback doDraw)
+void CalcLineHorizontal(int xPrev, int yPrev, int xCur, int yCur, int lineLength, uint16_t cPrev, uint16_t cCur)
 {
-  if (cur != prev)
+  if (yPrev != yCur)
   {
-    if (prev != 0 && prev != lineEnd)
-    {
-      // Clear line if it is not on another line
-      doDraw(prev, refPrev, BLACK);
-    }
-
-    doDraw(cur, refCur, WHITE);
-  }
-}
-
-void drawLineOne(int vOffset, int hOffset, uint16_t color)
-{
-  #ifdef DEBUG
-  if (color == 0xFFFF)
-  {
-    color = 0x001F; // blue
-  }
-  else
-  {
-    color = 0x000F; // navy
-  }
-  #endif
-  _tft.drawFastHLine(OFFSET_H + hOffset, OFFSET_V + vOffset + 1, CONTAINER_SIZE + LINEOFFSET_END, color);
-}
-
-void drawLineTwo(int hOffset, int vOffset, uint16_t color)
-{
-  #ifdef DEBUG
-  if (color == 0xFFFF)
-  {
-    color = 0x07E0; // green
-  }
-  else
-  {
-    color = 0x03E0; // dark green
-  }
-  #endif
-  _tft.drawFastVLine(OFFSET_H + hOffset + 1, OFFSET_V + vOffset + 2, CONTAINER_SIZE + LINEOFFSET_END - vOffset - 1, color);
-}
-
-void drawLineThree(int vOffset, int hOffset, uint16_t color)
-{
-  if (vOffset < CONTAINER_SIZE - 2) // Don't render if height exceeded
-  {
-    #ifdef DEBUG
-    if (color == 0xFFFF)
-    {
-      color = 0xF800; // red
-    }
-    else
-    {
-      color = 0x7800; // magenta
-    }
-    #endif
-    _tft.drawFastHLine(OFFSET_H + hOffset + 2, OFFSET_V + vOffset + 2, CONTAINER_SIZE - hOffset - 2, color);
+    _tft.drawFastHLine(CLOCK_X + xPrev, CLOCK_Y + yPrev, lineLength, cPrev);
+    _tft.drawFastHLine(CLOCK_X + xCur, CLOCK_Y + yCur, lineLength, cCur);
   }
 }
 
 void drawText()
 {
-  _tft.setCursor(TIME_H, OFFSET_V + CONTAINER_SIZE + SEPERATION);
+  _tft.setCursor(TEXT_X, CLOCK_Y + CLOCK_SIZE + TEXT_MARGIN_Y);
   _tft.println(_dTime.getFormattedDate() + " " + _dTime.getFormattedTime());
 }
