@@ -7,14 +7,10 @@
 #define CLOCK_Y 6
 #define CLOCK_SIZE 100
 #define CLOCK_LINE_THICKNESS 1
-
 #define TEXT_X 25
 #define TEXT_MARGIN_Y 8
 
-//#define LINEOFFSET_START 1
-//#define LINEOFFSET_END -1
-
-#define DEBUG 0
+//#define DEBUG 0 // Uncomment this line to enable debug mode
 
 // DEBUG COLORS
 #define WHITE           0xFFFF      /* 255, 255, 255 */
@@ -36,51 +32,89 @@
 #define MAGENTA         0xF81F      /* 255,   0, 255 */
 #define PURPLE          0x780F      /* 128,   0, 128 */
 
+#ifndef DEBUG
+#define COLOR_ONE_CUR WHITE
+#define COLOR_ONE_PREV BLACK
+#define COLOR_TWO_CUR WHITE
+#define COLOR_TWO_PREV BLACK
+#define COLOR_THREE_CUR WHITE
+#define COLOR_THREE_PREV BLACK
+#else
+#define COLOR_ONE_CUR BLUE
+#define COLOR_ONE_PREV NAVY
+#define COLOR_TWO_CUR GREEN
+#define COLOR_TWO_PREV DARKGREEN
+#define COLOR_THREE_CUR RED
+#define COLOR_THREE_PREV MAROON
+#endif
+
 typedef void (*DrawLineCallback)(int, int, int, uint16_t);
 
 Ardusamber _dTime;
 TFT_ILI9163C _tft = TFT_ILI9163C(10, 8, 9);
-
 Bun _buttonBeatTwo(2);
 Bun _buttonBeatThree(3);
 Bun _buttonPulseOne(4);
 
-float _beatOnePerc;
-float _beatOnePercPrev;
-float _beatTwoPerc;
-float _beatTwoPercPrev;
-float _beatThreePerc;
-float _beatThreePercPrev;
-
-uint16_t _containerColor = WHITE;
+const int LINE_LENGTH = CLOCK_SIZE - CLOCK_LINE_THICKNESS;
+float _onePerc;
+float _onePercPrev;
+float _twoPerc;
+float _twoPercPrev;
+float _threePerc;
+float _threePercPrev;
+int one_x = CLOCK_LINE_THICKNESS;
+int one_yPrev = CLOCK_LINE_THICKNESS;
+int one_yCur = CLOCK_LINE_THICKNESS;
+int two_xPrev;
+int two_yPrev;
+int two_lPrev;
+int two_xCur;
+int two_yCur;
+int two_lCur;
+int three_xPrev;
+int three_yPrev;
+int three_lPrev;
+int three_xCur;
+int three_yCur;
+int three_lCur;
 
 void setup()
 {
-  Serial.begin(9600);
   #ifdef DEBUG
-  //_containerColor = 0x7BEF; // dark grey
+  Serial.begin(9600);
   #endif
   
-  setTime(5, 20, 00, 1, 6, 2018);
+  setTime(5, 30, 00, 3, 6, 2018);
 
   _tft.begin();
   _tft.fillScreen(BLACK);
   _tft.setTextColor(WHITE,BLACK);
   _tft.setTextSize(1);
-  
-  drawContainer();
-  
-  // Pre-setup so prev values can be set.
-  _dTime.update();
-  calcLinePositions();
-  setPrevValues();
+
+  // CONTAINER
+  _tft.drawFastVLine(CLOCK_X, CLOCK_Y, CLOCK_SIZE, WHITE); // L
+  _tft.drawFastHLine(CLOCK_X, CLOCK_Y, CLOCK_SIZE, WHITE); // T
+  _tft.drawFastVLine(CLOCK_X + CLOCK_SIZE, CLOCK_Y, CLOCK_SIZE + 1, WHITE); // R
+  _tft.drawFastHLine(CLOCK_X, CLOCK_Y + CLOCK_SIZE, CLOCK_SIZE, WHITE); // B
 }
 
 void loop()
 {
+  // 24h*60m*60s = 86400 total seconds per day
+  // beat1  = 8640 s
+  // beat2  =  864 s
+  // beat3  =   86.4 s
+  // pulse1 =    8.64 s
+  // pulse2 =    0.864 s
+  // pulse3 =    0.0864 s
+  
   if(_buttonBeatTwo.isPressed()) 
   {
     adjustTime(864);
+
+    // Hack fix to clean up missed lines - this happens on large time changes
+    _tft.fillRect(CLOCK_X + CLOCK_LINE_THICKNESS, CLOCK_Y + CLOCK_LINE_THICKNESS, CLOCK_SIZE - CLOCK_LINE_THICKNESS, CLOCK_SIZE - CLOCK_LINE_THICKNESS, BLACK);
   }
   if(_buttonBeatThree.isPressed()) 
   {
@@ -91,120 +125,84 @@ void loop()
     adjustTime(8.64);
   }
 
-  // 24h*60m*60s = 86400 total seconds per day
-  // beat1  = 8640 s
-  // beat2  =  864 s
-  // beat3  =   86.4 s
-  // pulse1 =    8.64 s
-  // pulse2 =    0.864 s
-  // pulse3 =    0.0864 s
-
   _dTime.update();
-  
   drawClock();
-  drawText();
+
+  // TEXT
+  _tft.setCursor(TEXT_X, CLOCK_Y + CLOCK_SIZE + TEXT_MARGIN_Y);
+  _tft.println(_dTime.getFormattedDate() + " " + _dTime.getFormattedTime());
   
-  delay(86);
+  delay(8.6);
 }
 
-void drawContainer()
-{
-  _tft.drawFastVLine( CLOCK_X, CLOCK_Y, CLOCK_SIZE, _containerColor); // L
-  _tft.drawFastHLine( CLOCK_X, CLOCK_Y, CLOCK_SIZE, _containerColor); // T
-  _tft.drawFastVLine( CLOCK_X + CLOCK_SIZE, CLOCK_Y, CLOCK_SIZE + 1, _containerColor); // R
-  _tft.drawFastHLine( CLOCK_X, CLOCK_Y + CLOCK_SIZE, CLOCK_SIZE, _containerColor); // B
-}
-
-void calcLinePositions()
-{
-  _beatOnePerc = (_dTime.getTime().toInt() / 1000000.00);
-  _beatTwoPerc = (_dTime.getTime().substring(1,6).toInt() / 100000.00);
-  _beatThreePerc = (_dTime.getTime().substring(2,6).toInt() / 10000.00); 
-}
-
-void setPrevValues()
-{
-  _beatOnePercPrev = _beatOnePerc;
-  _beatTwoPercPrev = _beatTwoPerc;
-  _beatThreePercPrev = _beatThreePerc;
-}
-
-
-// The problem before was that I was not taking into account that the prev and cur lines are different lengths
 void drawClock()
 {
-  calcLinePositions();
+  // PERCENT
+  _onePerc = (_dTime.getTime().toInt() / 1000000.00);
+  _twoPerc = (_dTime.getTime().substring(1,6).toInt() / 100000.00);
+  _threePerc = (_dTime.getTime().substring(2,6).toInt() / 10000.00); 
 
+  // LINE
+  one_yCur = CLOCK_LINE_THICKNESS + (_onePerc * LINE_LENGTH);
+  two_xCur = CLOCK_LINE_THICKNESS + (_twoPerc * LINE_LENGTH);
+  two_yCur = CLOCK_LINE_THICKNESS * 2 + (_onePerc * LINE_LENGTH);
+  two_lCur = LINE_LENGTH - (_onePerc * LINE_LENGTH);
+  three_xCur = CLOCK_LINE_THICKNESS + two_xCur;
+  three_yCur = CLOCK_LINE_THICKNESS + one_yCur + (_threePerc * (LINE_LENGTH - one_yCur));
+  //three_lCur = LINE_LENGTH - (_twoPerc * LINE_LENGTH);
+  three_lCur = LINE_LENGTH + CLOCK_LINE_THICKNESS - three_xCur;
 
-
-  // 1
-  int one_xPrev = CLOCK_LINE_THICKNESS;
-  int one_yPrev = CLOCK_LINE_THICKNESS + (_beatOnePercPrev * (CLOCK_SIZE - CLOCK_LINE_THICKNESS));
-  int one_lPrev = CLOCK_SIZE - CLOCK_LINE_THICKNESS;
-
-  int one_xCur = CLOCK_LINE_THICKNESS;
-  int one_yCur = CLOCK_LINE_THICKNESS + (_beatOnePerc * (CLOCK_SIZE - CLOCK_LINE_THICKNESS));
-  int one_lCur = CLOCK_SIZE - CLOCK_LINE_THICKNESS;
-
-  // 2
-  int two_xPrev = CLOCK_LINE_THICKNESS + (_beatTwoPercPrev * (CLOCK_SIZE - CLOCK_LINE_THICKNESS));
-  int two_yPrev = CLOCK_LINE_THICKNESS * 2 + (_beatOnePercPrev * (CLOCK_SIZE - CLOCK_LINE_THICKNESS));
-  int two_lPrev = CLOCK_SIZE - CLOCK_LINE_THICKNESS - (_beatOnePercPrev * (CLOCK_SIZE - CLOCK_LINE_THICKNESS));
-
-  int two_xCur = CLOCK_LINE_THICKNESS + (_beatTwoPerc * (CLOCK_SIZE - CLOCK_LINE_THICKNESS));
-  int two_yCur = CLOCK_LINE_THICKNESS * 2 + (_beatOnePerc * (CLOCK_SIZE - CLOCK_LINE_THICKNESS));
-  int two_lCur = CLOCK_SIZE - CLOCK_LINE_THICKNESS - (_beatOnePerc * (CLOCK_SIZE - CLOCK_LINE_THICKNESS));
-
-  // 3
-  int three_xPrev = CLOCK_LINE_THICKNESS + two_xPrev;
-  int three_yPrev = CLOCK_LINE_THICKNESS + one_yPrev + (_beatThreePercPrev * ((CLOCK_SIZE - CLOCK_LINE_THICKNESS) - one_yPrev));
-  int three_lPrev = CLOCK_SIZE - CLOCK_LINE_THICKNESS - (_beatTwoPercPrev * (CLOCK_SIZE - CLOCK_LINE_THICKNESS));
-
-  int three_xCur = CLOCK_LINE_THICKNESS + two_xCur;
-  int three_yCur = CLOCK_LINE_THICKNESS + one_yCur + (_beatThreePerc * ((CLOCK_SIZE - CLOCK_LINE_THICKNESS) - one_yCur));
-  int three_lCur = CLOCK_SIZE - CLOCK_LINE_THICKNESS - (_beatTwoPerc * (CLOCK_SIZE - CLOCK_LINE_THICKNESS));
-
-  
-
-
-
+  Serial.print("two_xCur = ");
+  Serial.print(two_xCur);
+  Serial.print(". three_xCur = ");
+  Serial.print(three_xCur);
+  Serial.print(". three_lCur = ");
+  Serial.println(three_lCur);
+    
+  // ERASE
   if (three_yCur < CLOCK_SIZE) // Don't render if height exceeded (happens around 992:000+)
   {
     if (three_yPrev != three_yCur)
     {
-      _tft.drawFastHLine(CLOCK_X + three_xPrev, CLOCK_Y + three_yPrev, three_lPrev, MAROON); // BLACK
-      _tft.drawFastHLine(CLOCK_X + three_xCur, CLOCK_Y + three_yCur, three_lCur, RED); // WHITE
+      _tft.drawFastHLine(CLOCK_X + three_xPrev, CLOCK_Y + three_yPrev, three_lPrev, COLOR_THREE_PREV); // BLACK
+    }
+  }
+  if (two_xPrev != two_xCur)
+  {
+    _tft.drawFastVLine(CLOCK_X + two_xPrev, CLOCK_Y + two_yPrev, two_lPrev, COLOR_TWO_PREV); // BLACK
+  }
+  if (one_yPrev != one_yCur)
+  {
+    _tft.drawFastHLine(CLOCK_X + one_x, CLOCK_Y + one_yPrev, LINE_LENGTH, COLOR_ONE_PREV); // BLACK
+
+  }
+  
+  // DRAW
+  if (one_yPrev != one_yCur)
+  {
+    _tft.drawFastHLine(CLOCK_X + one_x, CLOCK_Y + one_yCur, LINE_LENGTH, COLOR_ONE_CUR); // WHITE
+  }
+  if (two_xPrev != two_xCur)
+  {
+    _tft.drawFastVLine(CLOCK_X + two_xCur, CLOCK_Y + two_yCur, two_lCur, COLOR_TWO_CUR); // WHITE
+  }
+  if (three_yCur < CLOCK_SIZE) // Don't render if height exceeded (happens around 992:000+)
+  {
+    if (three_yPrev != three_yCur)
+    {
+      _tft.drawFastHLine(CLOCK_X + three_xCur, CLOCK_Y + three_yCur, three_lCur, COLOR_THREE_CUR); // WHITE
     }
   }
 
-  if (two_xPrev != two_xCur)
-  {
-    _tft.drawFastVLine(CLOCK_X + two_xPrev, CLOCK_Y + two_yPrev, two_lPrev, DARKGREEN); // BLACK
-    _tft.drawFastVLine(CLOCK_X + two_xCur, CLOCK_Y + two_yCur, two_lCur, GREEN); // WHITE
-  }
-
-  if (one_yPrev != one_yCur)
-  {
-    _tft.drawFastHLine(CLOCK_X + one_xPrev, CLOCK_Y + one_yPrev, one_lPrev, NAVY); // BLACK
-    _tft.drawFastHLine(CLOCK_X + one_xCur, CLOCK_Y + one_yCur, one_lCur, BLUE); // WHITE
-  }
-
-  //drawContainer();
-
-  setPrevValues();
-}
-
-void CalcLineHorizontal(int xPrev, int yPrev, int xCur, int yCur, int lineLength, uint16_t cPrev, uint16_t cCur)
-{
-  if (yPrev != yCur)
-  {
-    _tft.drawFastHLine(CLOCK_X + xPrev, CLOCK_Y + yPrev, lineLength, cPrev);
-    _tft.drawFastHLine(CLOCK_X + xCur, CLOCK_Y + yCur, lineLength, cCur);
-  }
-}
-
-void drawText()
-{
-  _tft.setCursor(TEXT_X, CLOCK_Y + CLOCK_SIZE + TEXT_MARGIN_Y);
-  _tft.println(_dTime.getFormattedDate() + " " + _dTime.getFormattedTime());
+  // PREV
+  _onePercPrev = _onePerc;
+  _twoPercPrev = _twoPerc;
+  _threePercPrev = _threePerc;
+  one_yPrev = one_yCur;
+  two_xPrev = two_xCur;
+  two_yPrev = two_yCur;
+  two_lPrev = two_lCur;
+  three_xPrev = three_xCur;
+  three_yPrev = three_yCur;
+  three_lPrev = three_lCur;
 }
