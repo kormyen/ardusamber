@@ -48,8 +48,6 @@
 #define COLOR_THREE_PREV MAROON
 #endif
 
-typedef void (*DrawLineCallback)(int, int, int, uint16_t);
-
 Ardusamber _dTime;
 TFT_ILI9163C _tft = TFT_ILI9163C(10, 8, 9);
 Bun _buttonBeatTwo(2);
@@ -57,33 +55,25 @@ Bun _buttonBeatThree(3);
 Bun _buttonPulseOne(4);
 
 const int LINE_LENGTH = CLOCK_SIZE - CLOCK_LINE_THICKNESS;
+
 float _onePerc;
-float _onePercPrev;
 float _twoPerc;
-float _twoPercPrev;
 float _threePerc;
-float _threePercPrev;
-int one_x = CLOCK_LINE_THICKNESS;
-int one_yPrev = CLOCK_LINE_THICKNESS;
-int one_yCur = CLOCK_LINE_THICKNESS;
-int two_xPrev;
-int two_yPrev;
-int two_lPrev;
-int two_xCur;
-int two_yCur;
-int two_lCur;
-int three_xPrev;
-int three_yPrev;
-int three_lPrev;
-int three_xCur;
-int three_yCur;
-int three_lCur;
+
+// 0 xCur, 1 yCur, 2 lCur, 3 xPrev, 4 yPrev, 5 lPrev
+int _one[6];
+int _two[6];
+int _three[6];
 
 void setup()
 {
   #ifdef DEBUG
   Serial.begin(9600);
   #endif
+
+  _one[0] = CLOCK_LINE_THICKNESS; // xCur
+  _one[1] = CLOCK_LINE_THICKNESS; // yCur
+  _one[4] = CLOCK_LINE_THICKNESS; // yPrev
   
   setTime(5, 30, 00, 3, 6, 2018);
 
@@ -143,66 +133,55 @@ void drawClock()
   _threePerc = (_dTime.getTime().substring(2,6).toInt() / 10000.00); 
 
   // LINE
-  one_yCur = CLOCK_LINE_THICKNESS + (_onePerc * LINE_LENGTH);
-  two_xCur = CLOCK_LINE_THICKNESS + (_twoPerc * LINE_LENGTH);
-  two_yCur = CLOCK_LINE_THICKNESS * 2 + (_onePerc * LINE_LENGTH);
-  two_lCur = LINE_LENGTH - (_onePerc * LINE_LENGTH);
-  three_xCur = CLOCK_LINE_THICKNESS + two_xCur;
-  three_yCur = CLOCK_LINE_THICKNESS + one_yCur + (_threePerc * (LINE_LENGTH - one_yCur));
-  //three_lCur = LINE_LENGTH - (_twoPerc * LINE_LENGTH);
-  three_lCur = LINE_LENGTH + CLOCK_LINE_THICKNESS - three_xCur;
-
-  Serial.print("two_xCur = ");
-  Serial.print(two_xCur);
-  Serial.print(". three_xCur = ");
-  Serial.print(three_xCur);
-  Serial.print(". three_lCur = ");
-  Serial.println(three_lCur);
+  _one[1] = CLOCK_LINE_THICKNESS + (_onePerc * LINE_LENGTH);
+  _two[0] = CLOCK_LINE_THICKNESS + (_twoPerc * LINE_LENGTH);
+  _two[1] = CLOCK_LINE_THICKNESS * 2 + (_onePerc * LINE_LENGTH);
+  _two[2] = LINE_LENGTH - (_onePerc * LINE_LENGTH);
+  _three[0] = CLOCK_LINE_THICKNESS + _two[0];
+  _three[1] = CLOCK_LINE_THICKNESS + _one[1] + (_threePerc * (LINE_LENGTH - _one[1]));
+  _three[2] = LINE_LENGTH + CLOCK_LINE_THICKNESS - _three[0];
     
   // ERASE
-  if (three_yCur < CLOCK_SIZE) // Don't render if height exceeded (happens around 992:000+)
+  if (_three[1] < CLOCK_SIZE) // Don't render if height exceeded (happens around 992:000+)
   {
-    if (three_yPrev != three_yCur)
+    if (_three[4] != _three[1]) // three's yPrev != yCur
     {
-      _tft.drawFastHLine(CLOCK_X + three_xPrev, CLOCK_Y + three_yPrev, three_lPrev, COLOR_THREE_PREV); // BLACK
+      _tft.drawFastHLine(CLOCK_X + _three[3], CLOCK_Y + _three[4], _three[5], COLOR_THREE_PREV); // BLACK
     }
   }
-  if (two_xPrev != two_xCur)
+  if (_two[3] != _two[0]) // two's xPrev != xCur
   {
-    _tft.drawFastVLine(CLOCK_X + two_xPrev, CLOCK_Y + two_yPrev, two_lPrev, COLOR_TWO_PREV); // BLACK
+    _tft.drawFastVLine(CLOCK_X + _two[3], CLOCK_Y + _two[4], _two[5], COLOR_TWO_PREV); // BLACK
   }
-  if (one_yPrev != one_yCur)
+  if (_one[4] != _one[1]) // one's yPrev != yCur
   {
-    _tft.drawFastHLine(CLOCK_X + one_x, CLOCK_Y + one_yPrev, LINE_LENGTH, COLOR_ONE_PREV); // BLACK
+    _tft.drawFastHLine(CLOCK_X + _one[0], CLOCK_Y + _one[4], LINE_LENGTH, COLOR_ONE_PREV); // BLACK
 
   }
   
   // DRAW
-  if (one_yPrev != one_yCur)
+  if (_one[4] != _one[1])
   {
-    _tft.drawFastHLine(CLOCK_X + one_x, CLOCK_Y + one_yCur, LINE_LENGTH, COLOR_ONE_CUR); // WHITE
+    _tft.drawFastHLine(CLOCK_X + _one[0], CLOCK_Y + _one[1], LINE_LENGTH, COLOR_ONE_CUR); // WHITE
   }
-  if (two_xPrev != two_xCur)
+  if (_two[3] != _two[0])
   {
-    _tft.drawFastVLine(CLOCK_X + two_xCur, CLOCK_Y + two_yCur, two_lCur, COLOR_TWO_CUR); // WHITE
+    _tft.drawFastVLine(CLOCK_X + _two[0], CLOCK_Y + _two[1], _two[2], COLOR_TWO_CUR); // WHITE
   }
-  if (three_yCur < CLOCK_SIZE) // Don't render if height exceeded (happens around 992:000+)
+  if (_three[1] < CLOCK_SIZE) // Don't render if height exceeded (happens around 992:000+)
   {
-    if (three_yPrev != three_yCur)
+    if (_three[4] != _three[1])
     {
-      _tft.drawFastHLine(CLOCK_X + three_xCur, CLOCK_Y + three_yCur, three_lCur, COLOR_THREE_CUR); // WHITE
+      _tft.drawFastHLine(CLOCK_X + _three[0], CLOCK_Y + _three[1], _three[2], COLOR_THREE_CUR); // WHITE
     }
   }
 
   // PREV
-  _onePercPrev = _onePerc;
-  _twoPercPrev = _twoPerc;
-  _threePercPrev = _threePerc;
-  one_yPrev = one_yCur;
-  two_xPrev = two_xCur;
-  two_yPrev = two_yCur;
-  two_lPrev = two_lCur;
-  three_xPrev = three_xCur;
-  three_yPrev = three_yCur;
-  three_lPrev = three_lCur;
+  _one[4] = _one[1]; // yPrev = yCur
+  _two[3] = _two[0]; // xPrev = xCur
+  _two[4] = _two[1]; // yPrev = yCur
+  _two[5] = _two[2]; // lPrev = lCur
+  _three[3] = _three[0]; // xPrev = xCur
+  _three[4] = _three[1]; // yPrev = yCur
+  _three[5] = _three[2]; // lPrev = lCur
 }
