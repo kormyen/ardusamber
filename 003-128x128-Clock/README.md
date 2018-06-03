@@ -8,11 +8,11 @@ Desamber is a time/date format created by [Devine Lu Linvega](https://github.com
 
 This experiment was built with an `Arduino Uno`, a `1.44" Red Serial 128X128 SPI Color TFT LCD Display Module` and three `Momentary buttons`. This sketch will use a `RTC (real-time clock)` soon, I need some batteries first.
 
-<img src='https://raw.githubusercontent.com/kormyen/Ardusamber/master/003-128x128-Clock/PREVIEW.jpg' width="600"/>
+<img src='https://raw.githubusercontent.com/kormyen/Ardusamber/master/003-128x128-Clock/PREVIEWCLOSE.jpg' width="600"/>
 
 <img src='https://raw.githubusercontent.com/kormyen/Ardusamber/master/003-128x128-Clock/PREVIEWGIF.gif' width="600"/>
 
-<img src='https://raw.githubusercontent.com/kormyen/Ardusamber/master/003-128x128-Clock/PREVIEWCLOSE.jpg' width="600"/>
+<img src='https://raw.githubusercontent.com/kormyen/Ardusamber/master/003-128x128-Clock/PREVIEW.jpg' width="600"/>
 
 ## Guide
 
