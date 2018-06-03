@@ -3,61 +3,51 @@
 #include "TimeLib.h"
 #include "TFT_ILI9163C.h"
 
-//#define DEBUG 0 // Uncomment this line to enable debug mode
+//#define DEBUG 0 // uncomment this line to enable debug mode (rgb lines)
 
-#define WHITE           0xFFFF      /* 255, 255, 255 */
-#define LIGHTGREY       0xC618      /* 192, 192, 192 */
-#define DARKGREY        0x7BEF      /* 128, 128, 128 */
-#define BLACK           0x0000      /*   0,   0,   0 */
-#define NAVY            0x000F      /*   0,   0, 128 */
-#define BLUE            0x001F      /*   0,   0, 255 */
-#define DARKCYAN        0x03EF      /*   0, 128, 128 */
-#define CYAN            0x07FF      /*   0, 255, 255 */
-#define GREEN           0x07E0      /*   0, 255,   0 */
-#define DARKGREEN       0x03E0      /*   0, 128,   0 */
-#define OLIVE           0x7BE0      /* 128, 128,   0 */
-#define GREENYELLOW     0xAFE5      /* 173, 255,  47 */
-#define YELLOW          0xFFE0      /* 255, 255,   0 */
-#define ORANGE          0xFD20      /* 255, 165,   0 */
-#define RED             0xF800      /* 255,   0,   0 */
-#define MAROON          0x7800      /* 128,   0,   0 */
-#define MAGENTA         0xF81F      /* 255,   0, 255 */
-#define PURPLE          0x780F      /* 128,   0, 128 */
+#define BLACK             0x0000
+#define WHITE             0xFFFF
+#define BLUE              0x001F
+#define NAVY              0x000F
+#define GREEN             0x07E0
+#define DARKGREEN         0x03E0
+#define RED               0xF800
+#define MAROON            0x7800
 
 #ifndef DEBUG
-#define COLOR_ONE_CUR WHITE
-#define COLOR_ONE_PREV BLACK
-#define COLOR_TWO_CUR WHITE
-#define COLOR_TWO_PREV BLACK
-#define COLOR_THREE_CUR WHITE
-#define COLOR_THREE_PREV BLACK
-#define COLOR_FOUR_CUR WHITE
-#define COLOR_FOUR_PREV BLACK
-#define COLOR_FIVE_CUR WHITE
-#define COLOR_FIVE_PREV BLACK
-#define COLOR_SIX_CUR WHITE
-#define COLOR_SIX_PREV BLACK
+#define COLOR_ONE_CUR     WHITE
+#define COLOR_ONE_PREV    BLACK
+#define COLOR_TWO_CUR     WHITE
+#define COLOR_TWO_PREV    BLACK
+#define COLOR_THREE_CUR   WHITE
+#define COLOR_THREE_PREV  BLACK
+#define COLOR_FOUR_CUR    WHITE
+#define COLOR_FOUR_PREV   BLACK
+#define COLOR_FIVE_CUR    WHITE
+#define COLOR_FIVE_PREV   BLACK
+#define COLOR_SIX_CUR     WHITE
+#define COLOR_SIX_PREV    BLACK
 #else
-#define COLOR_ONE_CUR BLUE
-#define COLOR_ONE_PREV NAVY
-#define COLOR_TWO_CUR GREEN
-#define COLOR_TWO_PREV DARKGREEN
-#define COLOR_THREE_CUR RED
-#define COLOR_THREE_PREV MAROON
-#define COLOR_FOUR_CUR BLUE
-#define COLOR_FOUR_PREV NAVY
-#define COLOR_FIVE_CUR GREEN
-#define COLOR_FIVE_PREV DARKGREEN
-#define COLOR_SIX_CUR RED
-#define COLOR_SIX_PREV MAROON
+#define COLOR_ONE_CUR     BLUE
+#define COLOR_ONE_PREV    NAVY
+#define COLOR_TWO_CUR     GREEN
+#define COLOR_TWO_PREV    DARKGREEN
+#define COLOR_THREE_CUR   RED
+#define COLOR_THREE_PREV  MAROON
+#define COLOR_FOUR_CUR    BLUE
+#define COLOR_FOUR_PREV   NAVY
+#define COLOR_FIVE_CUR    GREEN
+#define COLOR_FIVE_PREV   DARKGREEN
+#define COLOR_SIX_CUR     RED
+#define COLOR_SIX_PREV    MAROON
 #endif
 
-#define CLOCK_X 14
-#define CLOCK_Y 6
-#define CLOCK_SIZE 100
-#define LINE_THICKNESS 1
-#define TEXT_X 25
-#define TEXT_MARGIN_Y 8
+#define CLOCK_X           14
+#define CLOCK_Y           6
+#define CLOCK_SIZE        100
+#define LINE_THICKNESS    1
+#define TEXT_X            25
+#define TEXT_MARGIN_Y     8
 
 Ardusamber _dTime;
 TFT_ILI9163C _tft = TFT_ILI9163C(10, 8, 9);
@@ -65,6 +55,7 @@ Bun _buttonBeatTwo(2);
 Bun _buttonBeatThree(3);
 Bun _buttonPulseOne(4);
 
+bool _forceRedraw;
 const int LINE_LENGTH = CLOCK_SIZE - LINE_THICKNESS;
 
 float _onePerc;
@@ -78,29 +69,28 @@ float _sixPerc;
 int _one[6];
 int _two[6];
 int _three[6];
-
 int _four[6];
 int _five[6];
 int _six[6];
 
 void setup()
 {
-  #ifdef DEBUG
-  Serial.begin(9600);
-  #endif
+  setTime(3, 00, 00, 4, 6, 2018);
 
   _one[0] = LINE_THICKNESS; // xCur
   _one[1] = LINE_THICKNESS; // yCur
   _one[4] = LINE_THICKNESS; // yPrev
-  
-  setTime(3, 00, 00, 4, 6, 2018);
 
   _tft.begin();
   _tft.fillScreen(BLACK);
   _tft.setTextColor(WHITE,BLACK);
   _tft.setTextSize(1);
 
-  drawContainer();
+  // CONTAINER
+  _tft.drawFastVLine(CLOCK_X, CLOCK_Y, CLOCK_SIZE, WHITE); // L
+  _tft.drawFastHLine(CLOCK_X, CLOCK_Y, CLOCK_SIZE, WHITE); // T
+  _tft.drawFastVLine(CLOCK_X + CLOCK_SIZE, CLOCK_Y, CLOCK_SIZE + 1, WHITE); // R
+  _tft.drawFastHLine(CLOCK_X, CLOCK_Y + CLOCK_SIZE, CLOCK_SIZE, WHITE); // B
 }
 
 void loop()
@@ -116,17 +106,17 @@ void loop()
   if(_buttonBeatTwo.isPressed()) 
   {
     adjustTime(864);
-    // HACK: line erasing issues currently happen with the clock rendering when time is changed drastically like this.
-    // Bug 1) beat/pulse lines' top/left most sections are often (not always) un-erased.
-    _tft.fillRect(CLOCK_X + LINE_THICKNESS, CLOCK_Y + LINE_THICKNESS, LINE_LENGTH, LINE_LENGTH, BLACK); // hack fix to clean up missed lines
+    refresh();
   }
   if(_buttonBeatThree.isPressed()) 
   {
     adjustTime(86.4);
+    refresh();
   }
   if(_buttonPulseOne.isPressed()) 
   {
     adjustTime(8.64);
+    refresh();
   }
 
   _dTime.update();
@@ -140,14 +130,6 @@ void loop()
   delay(1);
 }
 
-void drawContainer()
-{
-  _tft.drawFastVLine(CLOCK_X, CLOCK_Y, CLOCK_SIZE, WHITE); // L
-  _tft.drawFastHLine(CLOCK_X, CLOCK_Y, CLOCK_SIZE, WHITE); // T
-  _tft.drawFastVLine(CLOCK_X + CLOCK_SIZE, CLOCK_Y, CLOCK_SIZE + 1, WHITE); // R
-  _tft.drawFastHLine(CLOCK_X, CLOCK_Y + CLOCK_SIZE, CLOCK_SIZE, WHITE); // B
-}
-
 void drawClock(String dtime)
 {
   // PERCENT
@@ -158,7 +140,7 @@ void drawClock(String dtime)
   _fivePerc = (dtime.substring(4,6).toInt() / 100.00);    // H
   _sixPerc = (dtime.substring(5,6).toInt() / 10.00);      // V
 
-  // LINE
+  // CURRENT
   _one[1] = LINE_THICKNESS + (_onePerc * LINE_LENGTH);
   _two[0] = LINE_THICKNESS + (_twoPerc * LINE_LENGTH);
   _two[1] = LINE_THICKNESS * 2 + (_onePerc * LINE_LENGTH);
@@ -166,72 +148,69 @@ void drawClock(String dtime)
   _three[0] = LINE_THICKNESS + _two[0];
   _three[1] = min(LINE_THICKNESS + _one[1] + (_threePerc * (LINE_LENGTH - _one[1])), LINE_LENGTH);
   _three[2] = LINE_LENGTH + LINE_THICKNESS - _three[0];
-
-  _four[0] = LINE_THICKNESS + _two[0] + (_fourPerc * (LINE_LENGTH - _two[0]));
+  _four[0] = min(LINE_THICKNESS + _two[0] + (_fourPerc * (LINE_LENGTH - _two[0])), LINE_LENGTH);
   _four[1] = LINE_THICKNESS + _three[1];
   _four[2] = LINE_LENGTH - _three[1];
-  
   _five[0] = LINE_THICKNESS + _four[0];
   _five[1] = min(LINE_THICKNESS + _three[1] + (_fivePerc * (LINE_LENGTH - _three[1])), LINE_LENGTH);
   _five[2] = LINE_LENGTH - _four[0];
-
   _six[0] = min(LINE_THICKNESS + _four[0] + (_sixPerc * (LINE_LENGTH - _four[0])), LINE_LENGTH);
   _six[1] = LINE_THICKNESS + _five[1];
   _six[2] = LINE_LENGTH - _five[1];
     
   // ERASE
-  if (_six[3] != _six[0]) // three's yPrev != yCur
+  if (_six[3] != _six[0]) // six's xPrev != xCur
   {
-    _tft.drawFastVLine(CLOCK_X + _six[3], CLOCK_Y + _six[4], _six[5], COLOR_SIX_PREV); // BLACK
+    _tft.drawFastVLine(CLOCK_X + _six[3], CLOCK_Y + _six[4], _six[5], COLOR_SIX_PREV);
   }
-  if (_five[4] != _five[1]) // three's yPrev != yCur
+  if (_five[4] != _five[1]) // five's yPrev != yCur
   {
-    _tft.drawFastHLine(CLOCK_X + _five[3], CLOCK_Y + _five[4], _five[5], COLOR_FIVE_PREV); // BLACK
+    _tft.drawFastHLine(CLOCK_X + _five[3], CLOCK_Y + _five[4], _five[5], COLOR_FIVE_PREV);
   }
-  if (_four[3] != _four[0]) // three's yPrev != yCur
+  if (_four[3] != _four[0]) // four's xPrev != xCur
   {
-    _tft.drawFastVLine(CLOCK_X + _four[3], CLOCK_Y + _four[4], _four[5], COLOR_FOUR_PREV); // BLACK
+    _tft.drawFastVLine(CLOCK_X + _four[3], CLOCK_Y + _four[4], _four[5], COLOR_FOUR_PREV);
   }
   if (_three[4] != _three[1]) // three's yPrev != yCur
   {
-    _tft.drawFastHLine(CLOCK_X + _three[3], CLOCK_Y + _three[4], _three[5], COLOR_THREE_PREV); // BLACK
+    _tft.drawFastHLine(CLOCK_X + _three[3], CLOCK_Y + _three[4], _three[5], COLOR_THREE_PREV);
   }
   if (_two[3] != _two[0]) // two's xPrev != xCur
   {
-    _tft.drawFastVLine(CLOCK_X + _two[3], CLOCK_Y + _two[4], _two[5], COLOR_TWO_PREV); // BLACK
+    _tft.drawFastVLine(CLOCK_X + _two[3], CLOCK_Y + _two[4], _two[5], COLOR_TWO_PREV);
   }
   if (_one[4] != _one[1]) // one's yPrev != yCur
   {
-    _tft.drawFastHLine(CLOCK_X + _one[0], CLOCK_Y + _one[4], LINE_LENGTH, COLOR_ONE_PREV); // BLACK
+    _tft.drawFastHLine(CLOCK_X + _one[0], CLOCK_Y + _one[4], LINE_LENGTH, COLOR_ONE_PREV);
   }
   
   // DRAW
-  if (_one[4] != _one[1])
+  if (_forceRedraw || _one[4] != _one[1])
   {
-    _tft.drawFastHLine(CLOCK_X + _one[0], CLOCK_Y + _one[1], LINE_LENGTH, COLOR_ONE_CUR); // WHITE
+    _tft.drawFastHLine(CLOCK_X + _one[0], CLOCK_Y + _one[1], LINE_LENGTH, COLOR_ONE_CUR);
   }
-  if (_two[3] != _two[0])
+  if (_forceRedraw || _two[3] != _two[0])
   {
-    _tft.drawFastVLine(CLOCK_X + _two[0], CLOCK_Y + _two[1], _two[2], COLOR_TWO_CUR); // WHITE
+    _tft.drawFastVLine(CLOCK_X + _two[0], CLOCK_Y + _two[1], _two[2], COLOR_TWO_CUR);
   }
-  if (_three[4] != _three[1])
+  if (_forceRedraw || _three[4] != _three[1])
   {
-    _tft.drawFastHLine(CLOCK_X + _three[0], CLOCK_Y + _three[1], _three[2], COLOR_THREE_CUR); // WHITE
+    _tft.drawFastHLine(CLOCK_X + _three[0], CLOCK_Y + _three[1], _three[2], COLOR_THREE_CUR);
   }
-  if (_four[3] != _four[0])
+  if (_forceRedraw || _four[3] != _four[0])
   {
-    _tft.drawFastVLine(CLOCK_X + _four[0], CLOCK_Y + _four[1], _four[2], COLOR_FOUR_CUR); // WHITE
+    _tft.drawFastVLine(CLOCK_X + _four[0], CLOCK_Y + _four[1], _four[2], COLOR_FOUR_CUR);
   }
-  if (_five[4] != _five[1])
+  if (_forceRedraw || _five[4] != _five[1])
   {
-    _tft.drawFastHLine(CLOCK_X + _five[0], CLOCK_Y + _five[1], _five[2], COLOR_FIVE_CUR); // WHITE
+    _tft.drawFastHLine(CLOCK_X + _five[0], CLOCK_Y + _five[1], _five[2], COLOR_FIVE_CUR);
   }
-  if (_six[3] != _six[0])
+  if (_forceRedraw || _six[3] != _six[0])
   {
-    _tft.drawFastVLine(CLOCK_X + _six[0], CLOCK_Y + _six[1], _six[2], COLOR_SIX_CUR); // WHITE
+    _tft.drawFastVLine(CLOCK_X + _six[0], CLOCK_Y + _six[1], _six[2], COLOR_SIX_CUR);
   }
   
-  // PREV
+  // PREVIOUS
   _one[4] = _one[1]; // yPrev = yCur
   _two[3] = _two[0]; // xPrev = xCur
   _two[4] = _two[1]; // yPrev = yCur
@@ -248,4 +227,13 @@ void drawClock(String dtime)
   _six[3] = _six[0]; // xPrev = xCur
   _six[4] = _six[1]; // yPrev = yCur
   _six[5] = _six[2]; // lPrev = lCur
+  _forceRedraw = false;
+}
+
+void refresh()
+{
+  // HACK FIX due to line erasing issues currently happening with the clock rendering when time is adjusted faster than real time.
+  // Symptom: beat/pulse lines' top/left most sections are often (not always) left un-erased.
+  _tft.fillRect(CLOCK_X + LINE_THICKNESS, CLOCK_Y + LINE_THICKNESS, LINE_LENGTH, LINE_LENGTH, BLACK); // clock blanking to clear missed lines
+  _forceRedraw = true; // force redraw of all lines since they are cleared above
 }
