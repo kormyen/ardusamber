@@ -3,16 +3,8 @@
 #include "TimeLib.h"
 #include "TFT_ILI9163C.h"
 
-#define CLOCK_X 14
-#define CLOCK_Y 6
-#define CLOCK_SIZE 100
-#define CLOCK_LINE_THICKNESS 1
-#define TEXT_X 25
-#define TEXT_MARGIN_Y 8
-
 //#define DEBUG 0 // Uncomment this line to enable debug mode
 
-// DEBUG COLORS
 #define WHITE           0xFFFF      /* 255, 255, 255 */
 #define LIGHTGREY       0xC618      /* 192, 192, 192 */
 #define DARKGREY        0x7BEF      /* 128, 128, 128 */
@@ -48,13 +40,20 @@
 #define COLOR_THREE_PREV MAROON
 #endif
 
+#define CLOCK_X 14
+#define CLOCK_Y 6
+#define CLOCK_SIZE 100
+#define LINE_THICKNESS 1
+#define TEXT_X 25
+#define TEXT_MARGIN_Y 8
+
 Ardusamber _dTime;
 TFT_ILI9163C _tft = TFT_ILI9163C(10, 8, 9);
 Bun _buttonBeatTwo(2);
 Bun _buttonBeatThree(3);
 Bun _buttonPulseOne(4);
 
-const int LINE_LENGTH = CLOCK_SIZE - CLOCK_LINE_THICKNESS;
+const int LINE_LENGTH = CLOCK_SIZE - LINE_THICKNESS;
 
 float _onePerc;
 float _twoPerc;
@@ -71,9 +70,9 @@ void setup()
   Serial.begin(9600);
   #endif
 
-  _one[0] = CLOCK_LINE_THICKNESS; // xCur
-  _one[1] = CLOCK_LINE_THICKNESS; // yCur
-  _one[4] = CLOCK_LINE_THICKNESS; // yPrev
+  _one[0] = LINE_THICKNESS; // xCur
+  _one[1] = LINE_THICKNESS; // yCur
+  _one[4] = LINE_THICKNESS; // yPrev
   
   setTime(18, 32, 00, 3, 6, 2018);
 
@@ -98,11 +97,11 @@ void loop()
   if(_buttonBeatTwo.isPressed()) 
   {
     adjustTime(864);
-    // HACK: Line erasing issues happen with the clock rendering when time is changed drastically like this, haven't worked out why yet.
-    // Bug 1) beat lines/pluse tips are often left behind un-erased.
-    // Bug 2) beat three renders and erases bottom right of container line at 999:999
-    _tft.fillRect(CLOCK_X + CLOCK_LINE_THICKNESS, CLOCK_Y + CLOCK_LINE_THICKNESS, CLOCK_SIZE - CLOCK_LINE_THICKNESS, CLOCK_SIZE - CLOCK_LINE_THICKNESS, BLACK); // Hack fix to clean up missed lines
-    drawContainer(); // Hack fix to redraw bottom container line
+    // HACK: line erasing issues currently happen with the clock rendering when time is changed drastically like this.
+    // Bug 1) beat lines/pulse left most tips are often, not always un-erased.
+    // Bug 2) beat three line renders and erases on bottom right of container line at 999:999
+    _tft.fillRect(CLOCK_X + LINE_THICKNESS, CLOCK_Y + LINE_THICKNESS, CLOCK_SIZE - LINE_THICKNESS, CLOCK_SIZE - LINE_THICKNESS, BLACK); // hack fix to clean up missed lines
+    drawContainer(); // hack fix to redraw bottom container line
   }
   if(_buttonBeatThree.isPressed()) 
   {
@@ -140,16 +139,16 @@ void drawClock(String dtime)
   _threePerc = (dtime.substring(2,6).toInt() / 10000.00); 
 
   // LINE
-  _one[1] = CLOCK_LINE_THICKNESS + (_onePerc * LINE_LENGTH);
-  _two[0] = CLOCK_LINE_THICKNESS + (_twoPerc * LINE_LENGTH);
-  _two[1] = CLOCK_LINE_THICKNESS * 2 + (_onePerc * LINE_LENGTH);
+  _one[1] = LINE_THICKNESS + (_onePerc * LINE_LENGTH);
+  _two[0] = LINE_THICKNESS + (_twoPerc * LINE_LENGTH);
+  _two[1] = LINE_THICKNESS * 2 + (_onePerc * LINE_LENGTH);
   _two[2] = LINE_LENGTH - (_onePerc * LINE_LENGTH);
-  _three[0] = CLOCK_LINE_THICKNESS + _two[0];
-  _three[1] = CLOCK_LINE_THICKNESS + _one[1] + (_threePerc * (LINE_LENGTH - _one[1]));
-  _three[2] = LINE_LENGTH + CLOCK_LINE_THICKNESS - _three[0];
+  _three[0] = LINE_THICKNESS + _two[0];
+  _three[1] = LINE_THICKNESS + _one[1] + (_threePerc * (LINE_LENGTH - _one[1]));
+  _three[2] = LINE_LENGTH + LINE_THICKNESS - _three[0];
     
   // ERASE
-  if (_three[1] < CLOCK_SIZE) // Don't render if height exceeded (happens around 992:000+)
+  if (_three[1] < CLOCK_SIZE) // don't erase if clock height exceeded (happens around 992:000+)
   {
     if (_three[4] != _three[1]) // three's yPrev != yCur
     {
@@ -175,7 +174,7 @@ void drawClock(String dtime)
   {
     _tft.drawFastVLine(CLOCK_X + _two[0], CLOCK_Y + _two[1], _two[2], COLOR_TWO_CUR); // WHITE
   }
-  if (_three[1] < CLOCK_SIZE) // Don't render if height exceeded (happens around 992:000+)
+  if (_three[1] < CLOCK_SIZE) // don't render if clock height exceeded (happens around 992:000+)
   {
     if (_three[4] != _three[1])
     {
