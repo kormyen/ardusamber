@@ -144,16 +144,13 @@ void drawClock(String dtime)
   _two[1] = LINE_THICKNESS * 2 + (_onePerc * LINE_LENGTH);
   _two[2] = LINE_LENGTH - (_onePerc * LINE_LENGTH);
   _three[0] = LINE_THICKNESS + _two[0];
-  _three[1] = LINE_THICKNESS + _one[1] + (_threePerc * (LINE_LENGTH - _one[1]));
+  _three[1] = min(LINE_THICKNESS + _one[1] + (_threePerc * (LINE_LENGTH - _one[1])), CLOCK_SIZE);
   _three[2] = LINE_LENGTH + LINE_THICKNESS - _three[0];
     
   // ERASE
-  if (_three[1] < CLOCK_SIZE) // don't erase if clock height exceeded (happens around 992:000+)
+  if (_three[4] != _three[1]) // three's yPrev != yCur
   {
-    if (_three[4] != _three[1]) // three's yPrev != yCur
-    {
-      _tft.drawFastHLine(CLOCK_X + _three[3], CLOCK_Y + _three[4], _three[5], COLOR_THREE_PREV); // BLACK
-    }
+    _tft.drawFastHLine(CLOCK_X + _three[3], CLOCK_Y + _three[4], _three[5], COLOR_THREE_PREV); // BLACK
   }
   if (_two[3] != _two[0]) // two's xPrev != xCur
   {
@@ -162,7 +159,6 @@ void drawClock(String dtime)
   if (_one[4] != _one[1]) // one's yPrev != yCur
   {
     _tft.drawFastHLine(CLOCK_X + _one[0], CLOCK_Y + _one[4], LINE_LENGTH, COLOR_ONE_PREV); // BLACK
-
   }
   
   // DRAW
@@ -174,12 +170,9 @@ void drawClock(String dtime)
   {
     _tft.drawFastVLine(CLOCK_X + _two[0], CLOCK_Y + _two[1], _two[2], COLOR_TWO_CUR); // WHITE
   }
-  if (_three[1] < CLOCK_SIZE) // don't render if clock height exceeded (happens around 992:000+)
+  if (_three[4] != _three[1])
   {
-    if (_three[4] != _three[1])
-    {
-      _tft.drawFastHLine(CLOCK_X + _three[0], CLOCK_Y + _three[1], _three[2], COLOR_THREE_CUR); // WHITE
-    }
+    _tft.drawFastHLine(CLOCK_X + _three[0], CLOCK_Y + _three[1], _three[2], COLOR_THREE_CUR); // WHITE
   }
 
   // PREV
