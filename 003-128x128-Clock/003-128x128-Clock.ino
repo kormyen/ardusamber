@@ -98,9 +98,9 @@ void loop()
   {
     adjustTime(864);
     // HACK: line erasing issues currently happen with the clock rendering when time is changed drastically like this.
-    // Bug 1) beat lines/pulse left most tips are often, not always un-erased.
-    // Bug 2) beat three line renders and erases on bottom right of container line at 999:999
+    // Bug 1) beat/pulse lines' top/left most sections are often (not always) un-erased.
     _tft.fillRect(CLOCK_X + LINE_THICKNESS, CLOCK_Y + LINE_THICKNESS, CLOCK_SIZE - LINE_THICKNESS, CLOCK_SIZE - LINE_THICKNESS, BLACK); // hack fix to clean up missed lines
+    // Bug 2) beat three line renders and erases on bottom right of container line at 999:999
     drawContainer(); // hack fix to redraw bottom container line
   }
   if(_buttonBeatThree.isPressed()) 
