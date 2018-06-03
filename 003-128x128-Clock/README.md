@@ -10,6 +10,8 @@ This experiment was built with an `Arduino Uno`, a `1.44" Red Serial 128X128 SPI
 
 <img src='https://raw.githubusercontent.com/kormyen/Ardusamber/master/003-128x128-Clock/PREVIEW.jpg' width="600"/>
 
+<img src='https://raw.githubusercontent.com/kormyen/Ardusamber/master/003-128x128-Clock/PREVIEWGIF.gif' width="600"/>
+
 ## Guide
 
 ### Wiring for LCD
