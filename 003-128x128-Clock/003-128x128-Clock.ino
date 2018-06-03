@@ -75,18 +75,14 @@ void setup()
   _one[1] = CLOCK_LINE_THICKNESS; // yCur
   _one[4] = CLOCK_LINE_THICKNESS; // yPrev
   
-  setTime(5, 30, 00, 3, 6, 2018);
+  setTime(18, 32, 00, 3, 6, 2018);
 
   _tft.begin();
   _tft.fillScreen(BLACK);
   _tft.setTextColor(WHITE,BLACK);
   _tft.setTextSize(1);
 
-  // CONTAINER
-  _tft.drawFastVLine(CLOCK_X, CLOCK_Y, CLOCK_SIZE, WHITE); // L
-  _tft.drawFastHLine(CLOCK_X, CLOCK_Y, CLOCK_SIZE, WHITE); // T
-  _tft.drawFastVLine(CLOCK_X + CLOCK_SIZE, CLOCK_Y, CLOCK_SIZE + 1, WHITE); // R
-  _tft.drawFastHLine(CLOCK_X, CLOCK_Y + CLOCK_SIZE, CLOCK_SIZE, WHITE); // B
+  drawContainer();
 }
 
 void loop()
@@ -102,9 +98,11 @@ void loop()
   if(_buttonBeatTwo.isPressed()) 
   {
     adjustTime(864);
-
-    // Hack fix to clean up missed lines - this happens on large time changes
-    _tft.fillRect(CLOCK_X + CLOCK_LINE_THICKNESS, CLOCK_Y + CLOCK_LINE_THICKNESS, CLOCK_SIZE - CLOCK_LINE_THICKNESS, CLOCK_SIZE - CLOCK_LINE_THICKNESS, BLACK);
+    // HACK: Line erasing issues happen with the clock rendering when time is changed drastically like this, haven't worked out why yet.
+    // Bug 1) beat lines/pluse tips are often left behind un-erased.
+    // Bug 2) beat three renders and erases bottom right of container line at 999:999
+    _tft.fillRect(CLOCK_X + CLOCK_LINE_THICKNESS, CLOCK_Y + CLOCK_LINE_THICKNESS, CLOCK_SIZE - CLOCK_LINE_THICKNESS, CLOCK_SIZE - CLOCK_LINE_THICKNESS, BLACK); // Hack fix to clean up missed lines
+    drawContainer(); // Hack fix to redraw bottom container line
   }
   if(_buttonBeatThree.isPressed()) 
   {
@@ -116,7 +114,8 @@ void loop()
   }
 
   _dTime.update();
-  drawClock();
+
+  drawClock(_dTime.getTime());
 
   // TEXT
   _tft.setCursor(TEXT_X, CLOCK_Y + CLOCK_SIZE + TEXT_MARGIN_Y);
@@ -125,12 +124,20 @@ void loop()
   delay(8.6);
 }
 
-void drawClock()
+void drawContainer()
+{
+  _tft.drawFastVLine(CLOCK_X, CLOCK_Y, CLOCK_SIZE, WHITE); // L
+  _tft.drawFastHLine(CLOCK_X, CLOCK_Y, CLOCK_SIZE, WHITE); // T
+  _tft.drawFastVLine(CLOCK_X + CLOCK_SIZE, CLOCK_Y, CLOCK_SIZE + 1, WHITE); // R
+  _tft.drawFastHLine(CLOCK_X, CLOCK_Y + CLOCK_SIZE, CLOCK_SIZE, WHITE); // B
+}
+
+void drawClock(String dtime)
 {
   // PERCENT
-  _onePerc = (_dTime.getTime().toInt() / 1000000.00);
-  _twoPerc = (_dTime.getTime().substring(1,6).toInt() / 100000.00);
-  _threePerc = (_dTime.getTime().substring(2,6).toInt() / 10000.00); 
+  _onePerc = (dtime.toInt() / 1000000.00);
+  _twoPerc = (dtime.substring(1,6).toInt() / 100000.00);
+  _threePerc = (dtime.substring(2,6).toInt() / 10000.00); 
 
   // LINE
   _one[1] = CLOCK_LINE_THICKNESS + (_onePerc * LINE_LENGTH);
