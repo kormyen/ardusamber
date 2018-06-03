@@ -41,4 +41,4 @@ This experiment was built with an `Arduino Uno`, an `Open Smart I2C / IIC LCD 16
 
 ## Dependencies
 
-The code makes use of the [LiquidCrystal_I2C](https://github.com/marcoschwartz/LiquidCrystal_I2C) to control the LCD and [TimeLib](https://github.com/PaulStoffregen/Time) for timekeeping functionality.
+The code makes use of the [LiquidCrystal_I2C](https://github.com/marcoschwartz/LiquidCrystal_I2C) to control the LCD and [TimeLib](https://github.com/PaulStoffregen/Time) for time manipulation.

@@ -1,12 +1,12 @@
 # Clock
 
-This Arduino sketch displays Desamber clock, date and time on a 128x128 ILI9163C screen.
+This Arduino sketch displays the Desamber clock, date and time on a 128x128 ILI9163C screen.
 
 It includes buttons to set the time. The first adds a mid beat, the second button adds a third beat, the third button adds a pulse.
 
 Desamber is a time/date format created by [Devine Lu Linvega](https://github.com/neauoire). More information about Desamber [here](https://wiki.xxiivv.com/#clock).
 
-This experiment was built with an `Arduino Uno`, an `1.44" Red Serial 128X128 SPI Color TFT LCD Display Module` and three `Momentary buttons`. This sketch will use a `RTC (real-time clock)` soon, I need some batteries first.
+This experiment was built with an `Arduino Uno`, a `1.44" Red Serial 128X128 SPI Color TFT LCD Display Module` and three `Momentary buttons`. This sketch will use a `RTC (real-time clock)` soon, I need some batteries first.
 
 <img src='https://raw.githubusercontent.com/kormyen/Ardusamber/master/003-128x128-Clock/PREVIEW.jpg' width="600"/>
 
@@ -38,9 +38,10 @@ This experiment was built with an `Arduino Uno`, an `1.44" Red Serial 128X128 SP
 
 ### Usage
 
+- Press the buttons until time is correct
 - Enjoy
 
 
 ## Dependencies
 
-The code makes use of the [TFT_ILI9163C](https://github.com/sumotoy/TFT_ILI9163C) to control the LCD and [TimeLib](https://github.com/PaulStoffregen/Time) for timekeeping functionality.
+The code makes use of the [TFT_ILI9163C](https://github.com/sumotoy/TFT_ILI9163C) and [Adafruit-GFX-Library](https://github.com/adafruit/Adafruit-GFX-Library/) to control the LCD and [TimeLib](https://github.com/PaulStoffregen/Time) for time manipulation.
