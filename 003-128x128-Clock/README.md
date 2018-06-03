@@ -14,6 +14,15 @@ This experiment was built with an `Arduino Uno`, a `1.44" Red Serial 128X128 SPI
 
 <img src='https://raw.githubusercontent.com/kormyen/Ardusamber/master/003-128x128-Clock/PREVIEW.jpg' width="600"/>
 
+## Wishlist
+
+- Fix clock to be specified width (currently width + 1).
+- Refactor drawClock method to receive dtime, x, y, size, containerLineThickness, clockLineThickness and doErase as parameters.
+- Fix line erasing to no longer need refresh() hack when adjusting time faster than real time.
+- Try optional dotted line (or similar) extending above second beat line.
+- Try optional beat indicator numbers.
+- Try fullscreen clock rendering.
+
 ## Guide
 
 ### Wiring for LCD
