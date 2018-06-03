@@ -2,9 +2,13 @@
 
 This Arduino sketch displays Desamber clock, date and time on a 128x128 ILI9163C screen.
 
+It includes buttons to set the time. The first adds a mid beat, the second button adds a third beat, the third button adds a pulse.
+
 Desamber is a time/date format created by [Devine Lu Linvega](https://github.com/neauoire). More information about Desamber [here](https://wiki.xxiivv.com/#clock).
 
-This experiment was built with an `Arduino Uno`, an `1.44" Red Serial 128X128 SPI Color TFT LCD Display Module`. This sketch will use a `RTC (real-time clock)` soon, I need some batteries first.
+This experiment was built with an `Arduino Uno`, an `1.44" Red Serial 128X128 SPI Color TFT LCD Display Module` and three `Momentary buttons`. This sketch will use a `RTC (real-time clock)` soon, I need some batteries first.
+
+<img src='https://raw.githubusercontent.com/kormyen/Ardusamber/master/003-128x128-Clock/PREVIEW.jpg' width="600"/>
 
 ## Guide
 
@@ -18,6 +22,12 @@ This experiment was built with an `Arduino Uno`, an `1.44" Red Serial 128X128 SP
 - SDA to 11
 - ​SCK to 13
 - LED to 3.3V
+
+### Wiring for buttons
+
+- Mid beat button - wire one side to Arduino GND and the other to pin 2.
+- Third beat button - wire one side to Arduino GND and the other to pin 3.
+- Pulse button - wire one side to Arduino GND and the other to pin 4.
 
 ### Setup
 

@@ -15,3 +15,6 @@ This is repo is for `Arduino` experiements with [Devine Lu Linvega](https://gith
 
 ### 16x2 Time and Date
 [<img src='https://raw.githubusercontent.com/kormyen/Ardusamber/master/002-16x2-TimeAndDate/PREVIEWSMALL.jpg' width="600"/>](https://github.com/kormyen/Ardusamber/tree/master/002-16x2-TimeAndDate)
+
+### 128x128 Clock
+[<img src='https://raw.githubusercontent.com/kormyen/Ardusamber/master/003-128x128-Clock/PREVIEWSMALL.jpg' width="600"/>](https://github.com/kormyen/Ardusamber/tree/master/003-128x128-Clock)
