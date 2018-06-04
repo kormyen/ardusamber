@@ -22,6 +22,8 @@ This experiment was built with an `Arduino Uno`, a `1.44" Red Serial 128X128 SPI
 - Try optional dotted line (or similar) extending above second beat line.
 - Try optional beat indicator numbers.
 - Try fullscreen clock rendering.
+- Pomodoro start/stop button.
+- Simple live edge wooden case.  
 
 ## Guide
 
