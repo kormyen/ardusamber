@@ -1,6 +1,6 @@
 # Clock
 
-This `Arduino` sketch displays the `Desamber` [clock](https://wiki.xxiivv.com/#entaloneralie), [date](https://wiki.xxiivv.com/#calendar) and [time](https://wiki.xxiivv.com/#clock) on a 128x128 ILI9163C screen.
+This `Arduino` sketch displays the `Desamber` [clock](https://wiki.xxiivv.com/#entaloneralie) `Entaloneralie`, [date](https://wiki.xxiivv.com/#calendar) and [time](https://wiki.xxiivv.com/#clock) on a 128x128 ILI9163C screen.
 
 It includes buttons to set the time. The first adds a mid beat, the second button adds a third beat, the third button adds a pulse.
 
@@ -15,11 +15,11 @@ This experiment was built with an `Arduino Uno`, a `1.44" Red Serial 128X128 SPI
 ## Wishlist
 
 - Fix clock to be specified width (currently width + 1).
-- Refactor drawClock method to receive dtime, x, y, size, containerLineThickness, clockLineThickness and doErase as parameters.
+- Refactor drawClock method to receive dtime, x, y, size, containerThickness, needleThickness and doErase as parameters.
 - Fix line erasing to no longer need refresh() hack when adjusting time faster than real time.
 - Try optional dotted line (or similar) extending above second beat line.
 - Try optional beat indicator numbers.
-- Try fullscreen clock rendering.
+- Try fullscreen clock rendering (zero margin and no data or time).
 - Pomodoro start/stop button.
 - Simple live edge wooden case.  
 
