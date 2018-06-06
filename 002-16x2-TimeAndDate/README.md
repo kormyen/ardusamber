@@ -1,18 +1,16 @@
 # Time and Date
 
-This Arduino sketch displays four screens of different time and date formats on a 16 character by 2 line display.
+This `Arduino` sketch displays four screens of different `Desamber` and Metric time and date formats on a 16 character by 2 line display.
 
 The forth button changes mode.
 
 The first three buttons change date/time on certain modes.
 
-- The first mode `The time is` displays Desamber time.
-- The second mode `Desamber` displays Desamber time and date.
+- The first mode `The time is` displays Desamber [time](https://wiki.xxiivv.com/#clock).
+- The second mode `Desamber` displays Desamber [time](https://wiki.xxiivv.com/#clock) and [date](https://wiki.xxiivv.com/#calendar).
 - The third mode `Military` displays 24-hour time and YY-MM-DD.
-- The forth mode `Time` displays Desamber time and 24-hour time. In this mode the first three buttons change time.
-- The fifth mode `Date` displays the Desamber date and YY-MM-DD. In this mode the first three buttons change date.
-
-Desamber is a time/date format created by [Devine Lu Linvega](https://github.com/neauoire). More information about Desamber [here](https://wiki.xxiivv.com/#clock).
+- The forth mode `Time` displays Desamber [time](https://wiki.xxiivv.com/#clock) and 24-hour time. In this mode the first three buttons change time.
+- The fifth mode `Date` displays the Desamber [date](https://wiki.xxiivv.com/#calendar) and YY-MM-DD. In this mode the first three buttons change date.
 
 This experiment was built with an `Arduino Uno`, an `Open Smart I2C / IIC LCD 1602 Display Module` and four `Momentary buttons`. This sketch does not use a `RTC (real-time clock)`, the date is instead set via the buttons.
 

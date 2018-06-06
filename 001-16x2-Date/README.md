@@ -1,10 +1,8 @@
 # Date
 
-This Arduino sketch displays YY-MM-DD date format and Desamber date format on a 16 character by 2 line display.
+This `Arduino` sketch displays YY-MM-DD date format and `Desamber` [date](https://wiki.xxiivv.com/#calendar) on a 16 character by 2 line display.
 
 It includes buttons to set the date. One button adds a year, one adds a month, one adds a day and one subtracks a day.
-
-Desamber is a time/date format created by [Devine Lu Linvega](https://github.com/neauoire). More information about Desamber [here](https://wiki.xxiivv.com/#clock).
 
 This experiment was built with an `Arduino Uno`, an `Open Smart I2C / IIC LCD 1602 Display Module` and four `Momentary buttons`. This sketch does not use a `RTC (real-time clock)`, the date is instead set via the buttons.
 
