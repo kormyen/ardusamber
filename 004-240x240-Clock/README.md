@@ -1,16 +1,12 @@
 # Clock
 
-This `Arduino` sketch displays the `Desamber` [clock](https://wiki.xxiivv.com/#entaloneralie) `Entaloneralie`, [date](https://wiki.xxiivv.com/#calendar) and [time](https://wiki.xxiivv.com/#clock) on a 128x128 ILI9163C screen.
+This `Arduino` sketch displays the `Desamber` [clock](https://wiki.xxiivv.com/#entaloneralie) `Entaloneralie`, [date](https://wiki.xxiivv.com/#calendar) and [time](https://wiki.xxiivv.com/#clock) on a 240x240 ST7789 screen.
 
 It includes buttons to set the time. The first adds a mid beat, the second button adds a third beat, the third button adds a pulse.
 
-This experiment was built with an `Arduino Uno`, a `1.44" Red Serial 128x128 SPI Color TFT LCD Display Module` and three `Momentary buttons`. This sketch will use a `RTC (real-time clock)` soon, I need some batteries first.
+This experiment was built with an `Arduino Uno`, a `1.3" 240x240 IPS Color TFT LCD Display Module` and three `Momentary buttons`. This sketch will use a `RTC (real-time clock)` soon, I need some batteries first.
 
-<img src='https://raw.githubusercontent.com/kormyen/Ardusamber/master/003-128x128-Clock/PREVIEWCLOSE.jpg' width="600"/>
-
-<img src='https://raw.githubusercontent.com/kormyen/Ardusamber/master/003-128x128-Clock/PREVIEWGIF.gif' width="600"/>
-
-<img src='https://raw.githubusercontent.com/kormyen/Ardusamber/master/003-128x128-Clock/PREVIEW.jpg' width="600"/>
+***NOTE:** The 128x128 screen is actually better for this clock being physically larger and since it has four times fewer pixels it refreshes faster. `Entaloneralie` is all vertical and horizontal lines it doesn't benefit greatly from the increased resolution.*
 
 ## Wishlist
 
@@ -21,7 +17,7 @@ This experiment was built with an `Arduino Uno`, a `1.44" Red Serial 128x128 SPI
 - Try optional beat indicator numbers.
 - Try fullscreen clock rendering (zero margin and no data or time).
 - Pomodoro start/stop button.
-- Simple live edge wooden case.  
+- Simple live edge wooden case.
 
 ## Guide
 
@@ -29,12 +25,11 @@ This experiment was built with an `Arduino Uno`, a `1.44" Red Serial 128x128 SPI
 
 - VCC to 5V
 - GND to GND
-- CS to 10
-- RESET to 9
-- A0 to 8
+- SCL to 13
 - SDA to 11
-- ​SCK to 13
-- LED to 3.3V
+- RESET to 9
+- DC to 8
+- BLK to ?
 
 ### Wiring for buttons
 
@@ -57,4 +52,4 @@ This experiment was built with an `Arduino Uno`, a `1.44" Red Serial 128x128 SPI
 
 ## Dependencies
 
-The code makes use of the [TFT_ILI9163C](https://github.com/sumotoy/TFT_ILI9163C) and [Adafruit-GFX-Library](https://github.com/adafruit/Adafruit-GFX-Library/) to control the LCD and [TimeLib](https://github.com/PaulStoffregen/Time) for time manipulation.
+The code makes use of the [Arduino ST7789 Library](https://github.com/ananevilya/Arduino-ST7789-Library) and [Adafruit-GFX-Library](https://github.com/adafruit/Adafruit-GFX-Library/) to control the LCD and [TimeLib](https://github.com/PaulStoffregen/Time) for time manipulation.
