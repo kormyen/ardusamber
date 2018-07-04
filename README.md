@@ -6,7 +6,7 @@ This repo is for `Arduino` experiements with [Devine Lu Linvega](https://github.
 - *'Desamber is the time format of Nataniev.'*
 - *'The clock has two groups of 3 digits, called the beat and the pulse. For example, Noon is 500:000, 6AM is 250:000 and 6PM is 750:000.'*
 
-[Date](https://wiki.xxiivv.com/#calendar)
+[Date](https://wiki.xxiivv.com/#desamber)
 - *'The Desamber date format is a code ranging from 00A01, or Jan 1st '00 — to 99+02, or Dec 31st '99.'*
 
 [Clock](https://wiki.xxiivv.com/#entaloneralie)
